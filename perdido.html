@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Amor e Patas</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script
+  src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js">
+</script>
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+    }
+  </style>
+</head>
+
+<body class="bg-gray-50 text-gray-800">
+
+  <!-- Header -->
+  <header class="bg-gradient-to-r from-orange-400 to-orange-600 text-white shadow-md sticky top-0 z-50 transition-shadow duration-300" id="header">
+    <div class="w-full px-6 py-4 flex items-center justify-between">
+        <!-- Logo + Título + Slogan com link para index.html -->
+        <a href="index.html" class="flex items-center space-x-1 cursor-pointer group">
+          <!-- Substituído o emoji por imagem -->
+          <img src="/imagem/Logo_2.png" alt="Logo Amor e Patas" class="w-20 h-20 object-contain" />
+          
+          <div>
+            <h1 class="font-extrabold text-2xl tracking-wide select-none">Amor e Patas</h1>
+            <p class="text-xs opacity-75 group-hover:opacity-100 transition-opacity select-none">
+              Conectando vidas com amor
+            </p>
+          </div>
+        </a>
+
+
+            <!-- Pesquisa Desktop -->
+      <div class="hidden md:flex items-center space-x-2 bg-white rounded-full px-3 py-1 text-gray-600 focus-within:ring-2 ring-orange-400 transition relative">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-orange-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M9 17a8 8 0 100-16 8 8 0 000 16z" />
+        </svg>
+        <input type="search" placeholder="Buscar animal..." class="outline-none text-sm text-gray-700" />
+        <ul id="sugestoes-busca" class="absolute top-10 left-0 w-full bg-white border border-gray-200 rounded-lg shadow-lg text-sm text-gray-700 hidden z-40">
+        <li class="px-4 py-2 hover:bg-orange-100 cursor-pointer">Rex (Labrador)</li>
+        <li class="px-4 py-2 hover:bg-orange-100 cursor-pointer">Luna (Gato Siamês)</li>
+        <li class="px-4 py-2 hover:bg-orange-100 cursor-pointer">Thor (Pitbull)</li>
+        <li class="px-4 py-2 hover:bg-orange-100 cursor-pointer">Mel (Poodle)</li>
+        </ul>
+      </div>
+      <!-- Pesquisa Desktop -->
+
+
+    <!-- Navegação Desktop -->
+    <nav class="hidden md:flex space-x-8 font-medium text-sm">
+      <a href="index.html" class="hover:text-orange-300 transition-colors duration-200">Início</a>
+      <a href="cadastrar.html" class="hover:text-orange-300 transition-colors duration-200">Cadastrar Animal</a>
+      <a href="adotar.html" class="hover:text-orange-300 transition-colors duration-200">Adotar</a>
+      <a href="perdido.html" class="hover:text-orange-300 transition-colors duration-200">Animal Perdido</a>
+      <a href="encontrados.html" class="hover:text-orange-300 transition-colors duration-200">Animal Encontrado</a>
+      <a href="sobre.html" class="hover:text-orange-300 transition-colors duration-200">Sobre</a>
+      <a href="perfil.html" class="hover:text-orange-300 transition-colors duration-200">Perfil</a>
+    </nav>
+      <!-- Navegação Desktop -->
+       
+<!-- Ações Usuário -->
+<div class="hidden md:flex items-center space-x-4">
+  <!-- Notificações -->
+  <button aria-label="Notificações" class="relative group">
+    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white hover:text-orange-300 transition" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6 6 0 10-12 0v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+    </svg>
+    <span class="absolute top-0 right-0 inline-block w-2 h-2 bg-red-600 rounded-full ring-2 ring-white"></span>
+  </button>
+
+  <!-- Botão Login/Cadastro -->
+  <div class="relative group" id="login-container">
+    <button id="btn-login" class="bg-white text-orange-600 font-semibold px-3 py-1.5 rounded-full hover:bg-orange-100 focus:outline-none flex items-center space-x-1">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-orange-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+      </svg>
+      <span id="login-text">Login</span>
+    </button>
+    <!-- Formulário Dropdown -->
+    <div id="login-form" class="absolute right-0 mt-2 w-64 bg-white text-gray-700 rounded-lg shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-20 p-4 space-y-3">
+      <h2 class="text-orange-600 font-bold text-sm">Login de Usuário</h2>
+      <form id="form-login" class="space-y-3">
+        <div>
+          <label for="email" class="block text-xs font-semibold">Email</label>
+          <input type="email" id="login-email" name="email" placeholder="email@exemplo.com" class="w-full px-3 py-1.5 border border-gray-300 rounded focus:ring-orange-400 focus:outline-none text-sm" required>
+        </div>
+        <div>
+          <label for="senha" class="block text-xs font-semibold">Senha</label>
+          <input type="password" id="login-senha" name="senha" placeholder="••••••••" class="w-full px-3 py-1.5 border border-gray-300 rounded focus:ring-orange-400 focus:outline-none text-sm" required>
+        </div>
+        <button type="submit" class="w-full bg-orange-500 text-white font-semibold py-1.5 rounded hover:bg-orange-600 transition">Entrar</button>
+        <p class="text-xs text-center">Não tem conta? <a href="#" id="toggle-register" class="text-orange-500 hover:underline">Cadastre-se</a></p>
+      </form>
+      
+      <form id="form-register" class="space-y-3 hidden">
+        <h2 class="text-orange-600 font-bold text-sm">Cadastro de Usuário</h2>
+        <div>
+          <label for="nome" class="block text-xs font-semibold">Nome</label>
+          <input type="text" id="register-nome" name="nome" placeholder="Seu nome" class="w-full px-3 py-1.5 border border-gray-300 rounded focus:ring-orange-400 focus:outline-none text-sm" required>
+        </div>
+        <div>
+          <label for="email" class="block text-xs font-semibold">Email</label>
+          <input type="email" id="register-email" name="email" placeholder="email@exemplo.com" class="w-full px-3 py-1.5 border border-gray-300 rounded focus:ring-orange-400 focus:outline-none text-sm" required>
+        </div>
+        <div>
+          <label for="senha" class="block text-xs font-semibold">Senha</label>
+          <input type="password" id="register-senha" name="senha" placeholder="••••••••" class="w-full px-3 py-1.5 border border-gray-300 rounded focus:ring-orange-400 focus:outline-none text-sm" required>
+        </div>
+        <button type="submit" class="w-full bg-orange-500 text-white font-semibold py-1.5 rounded hover:bg-orange-600 transition">Cadastrar</button>
+        <p class="text-xs text-center">Já tem conta? <a href="#" id="toggle-login" class="text-orange-500 hover:underline">Faça login</a></p>
+      </form>
+    </div>
+  </div>
+</div>
+
+      <!-- Botão Hambúrguer Mobile -->
+      <button id="btn-menu" class="md:hidden flex flex-col space-y-1.5 focus:outline-none" aria-label="Abrir menu">
+        <span class="block w-6 h-0.5 bg-white rounded transition-transform duration-300 origin-center"></span>
+        <span class="block w-6 h-0.5 bg-white rounded transition-opacity duration-300"></span>
+        <span class="block w-6 h-0.5 bg-white rounded transition-transform duration-300 origin-center"></span>
+      </button>
+    </div>
+
+  <!-- Menu Mobile -->
+  <nav id="menu-mobile" class="md:hidden bg-orange-600 text-white px-6 py-4 space-y-4 hidden">
+    <a href="index.html" class="block hover:text-orange-200 transition">Início</a>
+    <a href="cadastrar.html" class="block hover:text-orange-200 transition">Cadastrar Animal</a>
+    <a href="adotar.html" class="block hover:text-orange-200 transition">Adotar</a>
+    <a href="perdido.html" class="block hover:text-orange-200 transition">Animal Perdido</a>
+    <a href="encontrados.html" class="block hover:text-orange-200 transition">Animal Encontrado</a>
+    <a href="sobre.html" class="block hover:text-orange-200 transition">Sobre</a>
+    <a href="perfil.html" class="block hover:text-orange-200 transition">Perfil</a>
+  </nav>
+  </header>
+
+
+<!-- Seção Animais Perdidos -->
+<section aria-labelledby="animais-perdidos-heading" class="bg-gray-50 py-16">
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8" id="animais-perdidos">
+    <div class="text-center mb-12">
+      <h2 id="animais-perdidos-heading" class="text-3xl font-extrabold text-red-600 sm:text-4xl">
+        Animais Perdidos - Ajude a Encontrar
+      </h2>
+      <p class="mt-4 max-w-2xl mx-auto text-lg text-gray-600">
+        Se você viu algum desses animais, por favor entre em contato. Cada informação ajuda!
+      </p>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+      <!-- Card 1 -->
+      <article class="bg-white shadow-lg rounded-xl overflow-hidden transition-transform duration-300 hover:scale-[1.02] hover:shadow-xl">
+        <div class="relative">
+          <img src="https://www.petlandflorida.com/wp-content/uploads/2019/09/Petland_Florida_Cavalier_King_Charles_Spaniel_puppy.jpg" alt="Foto do cachorro Toby perdido" class="w-full h-64 object-cover">
+          <span class="absolute top-4 right-4 bg-red-100 text-red-800 text-xs font-semibold px-3 py-1 rounded-full">DESAPARECIDO</span>
+        </div>
+        <div class="p-6">
+          <div class="flex justify-between items-start">
+            <h3 class="text-xl font-bold text-gray-900">Toby</h3>
+            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">Cachorro</span>
+          </div>
+          
+          <div class="mt-4 space-y-2">
+            <div class="flex items-center text-sm text-gray-600">
+              <svg class="flex-shrink-0 mr-2 h-4 w-4 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+              </svg>
+              Desapareceu em: <time datetime="2025-06-05" class="font-medium ml-1">05/06/2025</time>
+            </div>
+            
+            <div class="flex items-start text-sm text-gray-600">
+              <svg class="flex-shrink-0 mr-2 h-4 w-4 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+              </svg>
+              <span>Última localização: <span class="font-medium">Jardim Primavera</span></span>
+            </div>
+          </div>
+          
+          <p class="mt-4 text-gray-700">
+            <span class="font-semibold">Descrição:</span> Cachorro dócil, porte médio, pelagem marrom com manchas brancas. Usa coleira azul com identificação.
+          </p>
+          
+          <div class="mt-6">
+            <button class="w-full flex items-center justify-center px-6 py-3 border border-transparent rounded-md shadow-sm text-base font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors duration-200">
+              <svg class="-ml-1 mr-3 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+              </svg>
+              Tenho informações sobre o Toby
+            </button>
+          </div>
+        </div>
+      </article>
+
+      <!-- Card 2 -->
+      <article class="bg-white shadow-lg rounded-xl overflow-hidden transition-transform duration-300 hover:scale-[1.02] hover:shadow-xl">
+        <div class="relative">
+          <img src="https://static.vecteezy.com/system/resources/previews/011/834/839/large_2x/cute-stray-cat-relaxing-on-the-road-photo.jpg" alt="Foto da gata Mimi perdida" class="w-full h-64 object-cover">
+          <span class="absolute top-4 right-4 bg-red-100 text-red-800 text-xs font-semibold px-3 py-1 rounded-full">DESAPARECIDO</span>
+        </div>
+        <div class="p-6">
+          <div class="flex justify-between items-start">
+            <h3 class="text-xl font-bold text-gray-900">Mimi</h3>
+            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">Gata</span>
+          </div>
+          
+          <div class="mt-4 space-y-2">
+            <div class="flex items-center text-sm text-gray-600">
+              <svg class="flex-shrink-0 mr-2 h-4 w-4 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+              </svg>
+              Desapareceu em: <time datetime="2025-05-28" class="font-medium ml-1">28/05/2025</time>
+            </div>
+            
+            <div class="flex items-start text-sm text-gray-600">
+              <svg class="flex-shrink-0 mr-2 h-4 w-4 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+              </svg>
+              <span>Última localização: <span class="font-medium">Av. das Flores</span></span>
+            </div>
+          </div>
+          
+          <p class="mt-4 text-gray-700">
+            <span class="font-semibold">Descrição:</span> Gata dócil, porte médio, pelagem marrom com manchas brancas. Usa coleira azul com identificação.
+          </p>
+          
+          <div class="mt-6">
+            <button class="w-full flex items-center justify-center px-6 py-3 border border-transparent rounded-md shadow-sm text-base font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors duration-200">
+              <svg class="-ml-1 mr-3 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+              </svg>
+              Tenho informações sobre a Mimi
+            </button>
+          </div>
+        </div>
+      </article>
+
+      <!-- Card 3 -->
+      <article class="bg-white shadow-lg rounded-xl overflow-hidden transition-transform duration-300 hover:scale-[1.02] hover:shadow-xl">
+        <div class="relative">
+          <img src="https://cdn.images.express.co.uk/img/dynamic/130/640x640/5464057.jpg" alt="Foto do cachorro Léo perdido" class="w-full h-64 object-cover">
+          <span class="absolute top-4 right-4 bg-red-100 text-red-800 text-xs font-semibold px-3 py-1 rounded-full">DESAPARECIDO</span>
+        </div>
+        <div class="p-6">
+          <div class="flex justify-between items-start">
+            <h3 class="text-xl font-bold text-gray-900">Léoleolino</h3>
+            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">Cachorro</span>
+          </div>
+          
+          <div class="mt-4 space-y-2">
+            <div class="flex items-center text-sm text-gray-600">
+              <svg class="flex-shrink-0 mr-2 h-4 w-4 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+              </svg>
+              Desapareceu em: <time datetime="2025-06-01" class="font-medium ml-1">01/06/2025</time>
+            </div>
+            
+            <div class="flex items-start text-sm text-gray-600">
+              <svg class="flex-shrink-0 mr-2 h-4 w-4 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+              </svg>
+              <span>Última localização: <span class="font-medium">Parque Central</span></span>
+            </div>
+          </div>
+          
+          <p class="mt-4 text-gray-700">
+            <span class="font-semibold">Descrição:</span> Cachorro dócil, porte médio, pelagem marrom com manchas brancas. Usa coleira azul com identificação.
+          </p>
+          
+          <div class="mt-6">
+            <button class="w-full flex items-center justify-center px-6 py-3 border border-transparent rounded-md shadow-sm text-base font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors duration-200">
+              <svg class="-ml-1 mr-3 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+              </svg>
+              Tenho informações sobre o Léoleolino
+            </button>
+          </div>
+        </div>
+      </article>
+
+      <!-- Card 4 -->
+      <article class="bg-white shadow-lg rounded-xl overflow-hidden transition-transform duration-300 hover:scale-[1.02] hover:shadow-xl">
+        <div class="relative">
+          <img src="https://www.anipixels.com/photos/a7cb67fb-9762-4143-af16-3e8ca394e11a-f.jpg" alt="Foto da gata Pipoca perdida" class="w-full h-64 object-cover">
+          <span class="absolute top-4 right-4 bg-red-100 text-red-800 text-xs font-semibold px-3 py-1 rounded-full">DESAPARECIDO</span>
+        </div>
+        <div class="p-6">
+          <div class="flex justify-between items-start">
+            <h3 class="text-xl font-bold text-gray-900">Pipoca</h3>
+            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">Gata</span>
+          </div>
+          
+          <div class="mt-4 space-y-2">
+            <div class="flex items-center text-sm text-gray-600">
+              <svg class="flex-shrink-0 mr-2 h-4 w-4 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+              </svg>
+              Desapareceu em: <time datetime="2025-05-31" class="font-medium ml-1">31/05/2025</time>
+            </div>
+            
+            <div class="flex items-start text-sm text-gray-600">
+              <svg class="flex-shrink-0 mr-2 h-4 w-4 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+              </svg>
+              <span>Última localização: <span class="font-medium">Bela Vista</span></span>
+            </div>
+          </div>
+          
+          <p class="mt-4 text-gray-700">
+            <span class="font-semibold">Descrição:</span> Gato dócil, porte médio, pelagem marrom com manchas brancas. Usa coleira azul com identificação.
+          </p>
+          
+          <div class="mt-6">
+            <button class="w-full flex items-center justify-center px-6 py-3 border border-transparent rounded-md shadow-sm text-base font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors duration-200">
+              <svg class="-ml-1 mr-3 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+              </svg>
+              Tenho informações sobre a Pipoca
+            </button>
+          </div>
+        </div>
+      </article>
+
+      <!-- Card 5 -->
+      <article class="bg-white shadow-lg rounded-xl overflow-hidden transition-transform duration-300 hover:scale-[1.02] hover:shadow-xl">
+        <div class="relative">
+          <img src="https://cdn.mos.cms.futurecdn.net/YZQAwLPRU9DxCRSTrBNBug.jpg" alt="Foto do cachorro Spike perdido" class="w-full h-64 object-cover">
+          <span class="absolute top-4 right-4 bg-red-100 text-red-800 text-xs font-semibold px-3 py-1 rounded-full">DESAPARECIDO</span>
+        </div>
+        <div class="p-6">
+          <div class="flex justify-between items-start">
+            <h3 class="text-xl font-bold text-gray-900">Spike</h3>
+            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">Cachorro</span>
+          </div>
+          
+          <div class="mt-4 space-y-2">
+            <div class="flex items-center text-sm text-gray-600">
+              <svg class="flex-shrink-0 mr-2 h-4 w-4 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+              </svg>
+              Desapareceu em: <time datetime="2025-06-02" class="font-medium ml-1">02/06/2025</time>
+            </div>
+            
+            <div class="flex items-start text-sm text-gray-600">
+              <svg class="flex-shrink-0 mr-2 h-4 w-4 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+              </svg>
+              <span>Última localização: <span class="font-medium">Centro</span></span>
+            </div>
+          </div>
+          
+          <p class="mt-4 text-gray-700">
+            <span class="font-semibold">Descrição:</span> Cachorro dócil, porte médio, pelagem marrom com manchas brancas. Usa coleira azul com identificação.
+          </p>
+          
+          <div class="mt-6">
+            <button class="w-full flex items-center justify-center px-6 py-3 border border-transparent rounded-md shadow-sm text-base font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors duration-200">
+              <svg class="-ml-1 mr-3 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+              </svg>
+              Tenho informações sobre o Spike
+            </button>
+          </div>
+        </div>
+      </article>
+
+      <!-- Card 6 -->
+      <article class="bg-white shadow-lg rounded-xl overflow-hidden transition-transform duration-300 hover:scale-[1.02] hover:shadow-xl">
+        <div class="relative">
+          <img src="https://media.istockphoto.com/id/126220191/photo/orange-cat-in-the-road.jpg?s=612x612&w=0&k=20&c=vXib3QnFwW1LOenPrBBnV8W-HD58xZI3b0J1HTn8XUY=" alt="Foto da gata Lila perdida" class="w-full h-64 object-cover">
+          <span class="absolute top-4 right-4 bg-red-100 text-red-800 text-xs font-semibold px-3 py-1 rounded-full">DESAPARECIDO</span>
+        </div>
+        <div class="p-6">
+          <div class="flex justify-between items-start">
+            <h3 class="text-xl font-bold text-gray-900">Lilikinha</h3>
+            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">Gata</span>
+          </div>
+          
+          <div class="mt-4 space-y-2">
+            <div class="flex items-center text-sm text-gray-600">
+              <svg class="flex-shrink-0 mr-2 h-4 w-4 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+              </svg>
+              Desapareceu em: <time datetime="2025-05-30" class="font-medium ml-1">30/05/2025</time>
+            </div>
+            
+            <div class="flex items-start text-sm text-gray-600">
+              <svg class="flex-shrink-0 mr-2 h-4 w-4 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+              </svg>
+              <span>Última localização: <span class="font-medium">Vila Verde</span></span>
+            </div>
+          </div>
+          
+          <p class="mt-4 text-gray-700">
+            <span class="font-semibold">Descrição:</span> Gata rajada, pelagem cinza e preta, coleira com plaquinha rosa contendo informações de contato. Muito caseira.
+          </p>
+          
+          <div class="mt-6">
+            <button class="w-full flex items-center justify-center px-6 py-3 border border-transparent rounded-md shadow-sm text-base font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors duration-200">
+              <svg class="-ml-1 mr-3 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+              </svg>
+              Tenho informações sobre a Lilikinha
+            </button>
+          </div>
+        </div>
+      </article>
+    </div>
+
+    <div class="mt-12 text-center">
+      <button class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-gray-800 hover:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-colors duration-200">
+        Ver mais animais desaparecidos
+        <svg class="ml-3 -mr-1 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+        </svg>
+      </button>
+    </div>
+  </main>
+</section>
+
+  <!--Conteudo animal Perdido-->
+   
+<!-- Footer -->
+<footer class="bg-gray-900 text-gray-300 py-10">
+  <div class="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-4 gap-8">
+    
+    <!-- Sobre -->
+    <div>
+      <h4 class="text-xl font-semibold mb-4 text-white">Amor e Patas</h4>
+      <p class="text-gray-400 mb-4">
+        Conectando vidas e corações para um mundo melhor para nossos amigos peludos.
+      </p>
+    </div>
+
+    <!-- Redes Sociais -->
+    <div>
+      <h4 class="text-xl font-semibold mb-4 text-white">Siga-nos</h4>
+      <div class="flex space-x-6">
+        <a href="https://facebook.com/amorepatas" target="_blank" rel="noopener noreferrer" aria-label="Facebook" class="hover:text-orange-400">
+          <svg class="w-6 h-6 fill-current" viewBox="0 0 24 24" >
+            <path d="M22.675 0H1.325C.593 0 0 .593 0 1.326v21.348C0 23.407.593 24 1.325 24h11.495v-9.294H9.691v-3.622h3.129V8.413c0-3.1 1.894-4.788 4.659-4.788 1.325 0 2.466.099 2.798.143v3.24l-1.92.001c-1.504 0-1.795.715-1.795 1.763v2.313h3.587l-.467 3.622h-3.12V24h6.116c.73 0 1.324-.593 1.324-1.326V1.326C24 .593 23.407 0 22.675 0z"/>
+          </svg>
+        </a>
+        <a href="https://instagram.com/amorepatas" target="_blank" rel="noopener noreferrer" aria-label="Instagram" class="hover:text-orange-400">
+          <svg class="w-6 h-6 fill-current" viewBox="0 0 24 24" >
+            <path d="M7.75 2h8.5A5.75 5.75 0 0122 7.75v8.5A5.75 5.75 0 0116.25 22h-8.5A5.75 5.75 0 012 16.25v-8.5A5.75 5.75 0 017.75 2zm0 2A3.75 3.75 0 004 7.75v8.5A3.75 3.75 0 007.75 20h8.5a3.75 3.75 0 003.75-3.75v-8.5A3.75 3.75 0 0016.25 4h-8.5zm8.75 1a1 1 0 110 2 1 1 0 010-2zM12 7a5 5 0 110 10 5 5 0 010-10zm0 2a3 3 0 100 6 3 3 0 000-6z"/>
+          </svg>
+        </a>
+        <a href="https://twitter.com/amorepatas" target="_blank" rel="noopener noreferrer" aria-label="Twitter" class="hover:text-orange-400">
+          <svg class="w-6 h-6 fill-current" viewBox="0 0 24 24" >
+            <path d="M23 3a10.9 10.9 0 01-3.14.86A4.48 4.48 0 0022.4.36a9.09 9.09 0 01-2.88 1.1A4.52 4.52 0 0016.47 0c-2.49 0-4.5 2.03-4.5 4.53 0 .35.04.7.11 1.03A12.85 12.85 0 013 1.16a4.55 4.55 0 00-.61 2.28c0 1.57.79 2.96 1.99 3.78A4.5 4.5 0 012 6.6v.06a4.52 4.52 0 003.61 4.43 4.48 4.48 0 01-2.04.08 4.53 4.53 0 004.23 3.13A9.05 9.05 0 012 19.54 12.76 12.76 0 008.29 21c7.55 0 11.68-6.27 11.68-11.7 0-.18 0-.35-.01-.53A8.34 8.34 0 0023 3z"/>
+          </svg>
+        </a>
+      </div>
+    </div>
+  </div>
+</footer>
+  <script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Verificar se há usuário logado
+    const usuarioLogado = JSON.parse(localStorage.getItem('usuarioLogado'));
+    if (usuarioLogado) {
+      const loginText = document.getElementById('login-text');
+      const btnLogin = document.getElementById('btn-login');
+      
+      loginText.textContent = usuarioLogado.nome.split(' ')[0];
+      btnLogin.classList.add('logged-in');
+    }
+
+    // Menu mobile
+    const btnMenu = document.getElementById('btn-menu');
+    const menuMobile = document.getElementById('menu-mobile');
+    const spans = btnMenu.querySelectorAll('span');
+
+    btnMenu.addEventListener('click', () => {
+      menuMobile.classList.toggle('hidden');
+      spans[0].classList.toggle('rotate-45');
+      spans[0].classList.toggle('translate-y-1.5');
+      spans[1].classList.toggle('opacity-0');
+      spans[2].classList.toggle('-rotate-45');
+      spans[2].classList.toggle('-translate-y-1.5');
+    });
+
+    // Scroll header
+    window.addEventListener('scroll', () => {
+      const header = document.getElementById('header');
+      header.classList.toggle('shadow-xl', window.scrollY > 10);
+    });
+
+    // Alternar entre login e registro
+    document.getElementById('toggle-register')?.addEventListener('click', function(e) {
+      e.preventDefault();
+      document.getElementById('form-login').classList.add('hidden');
+      document.getElementById('form-register').classList.remove('hidden');
+    });
+    
+    document.getElementById('toggle-login')?.addEventListener('click', function(e) {
+      e.preventDefault();
+      document.getElementById('form-register').classList.add('hidden');
+      document.getElementById('form-login').classList.remove('hidden');
+    });
+    
+    // Formulário de Login
+    document.getElementById('form-login')?.addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      const email = document.getElementById('login-email').value;
+      const senha = document.getElementById('login-senha').value;
+      
+      // Verificar credenciais
+      const usuarios = JSON.parse(localStorage.getItem('usuarios')) || [];
+      const usuario = usuarios.find(u => u.email === email && u.senha === senha);
+      
+      if (usuario) {
+        // Login bem-sucedido
+        localStorage.setItem('usuarioLogado', JSON.stringify(usuario));
+        document.getElementById('login-text').textContent = usuario.nome.split(' ')[0];
+        document.getElementById('btn-login').classList.add('logged-in');
+        document.getElementById('login-form').classList.remove('group-hover:visible', 'group-hover:opacity-100');
+        document.getElementById('login-form').classList.add('opacity-0', 'invisible');
+        
+        alert('Login realizado com sucesso!');
+      } else {
+        alert('Email ou senha incorretos!');
+      }
+    });
+    
+    // Formulário de Registro
+    document.getElementById('form-register')?.addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      const nome = document.getElementById('register-nome').value;
+      const email = document.getElementById('register-email').value;
+      const senha = document.getElementById('register-senha').value;
+      
+      // Verificar se usuário já existe
+      const usuarios = JSON.parse(localStorage.getItem('usuarios')) || [];
+      const usuarioExistente = usuarios.find(u => u.email === email);
+      
+      if (usuarioExistente) {
+        alert('Este email já está cadastrado!');
+        return;
+      }
+      
+      // Adicionar novo usuário
+      const novoUsuario = { nome, email, senha };
+      usuarios.push(novoUsuario);
+      localStorage.setItem('usuarios', JSON.stringify(usuarios));
+      
+      // Logar automaticamente
+      localStorage.setItem('usuarioLogado', JSON.stringify(novoUsuario));
+      document.getElementById('login-text').textContent = novoUsuario.nome.split(' ')[0];
+      document.getElementById('btn-login').classList.add('logged-in');
+      document.getElementById('form-register').classList.add('hidden');
+      document.getElementById('form-login').classList.remove('hidden');
+      document.getElementById('login-form').classList.remove('group-hover:visible', 'group-hover:opacity-100');
+      document.getElementById('login-form').classList.add('opacity-0', 'invisible');
+      
+      alert('Cadastro realizado com sucesso! Você está logado.');
+    });
+  });
+  const campoBusca = document.querySelector('input[type="search"]');
+  const sugestoes = document.getElementById('sugestoes-busca');
+
+  campoBusca.addEventListener('focus', () => {
+    sugestoes.classList.remove('hidden');
+  });
+
+  campoBusca.addEventListener('blur', () => {
+    // Oculta após um pequeno atraso para permitir clique
+    setTimeout(() => sugestoes.classList.add('hidden'), 200);
+  });
+
+  // Preenche o campo com o clique
+  sugestoes.querySelectorAll('li').forEach(item => {
+    item.addEventListener('click', () => {
+      campoBusca.value = item.textContent;
+      sugestoes.classList.add('hidden');
+    });
+  });
+</script>
+</body>
+</html>

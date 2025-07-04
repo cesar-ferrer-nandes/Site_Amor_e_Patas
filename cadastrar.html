@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Amor e Patas</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script
+  src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js">
+</script>
+<style>
+    body {
+      font-family: 'Poppins', sans-serif;
+    }
+    .logged-in {
+      background-color: #f97316;
+      color: white;
+    }
+</style>
+</head>
+
+<body class="bg-gray-50 text-gray-800">
+
+  <!-- Header -->
+<header class="bg-gradient-to-r from-orange-400 to-orange-600 text-white shadow-md sticky top-0 z-50 transition-shadow duration-300" id="header">
+  <div class="w-full px-6 py-4 flex items-center justify-between">
+    <!-- Logo + Título + Slogan -->
+        <!-- Logo + Título + Slogan com link para index.html -->
+        <a href="index.html" class="flex items-center space-x-1 cursor-pointer group">
+          <!-- Substituído o emoji por imagem -->
+          <img src="/imagem/Logo_2.png" alt="Logo Amor e Patas" class="w-20 h-20 object-contain" />
+          
+          <div>
+            <h1 class="font-extrabold text-2xl tracking-wide select-none">Amor e Patas</h1>
+            <p class="text-xs opacity-75 group-hover:opacity-100 transition-opacity select-none">
+              Conectando vidas com amor
+            </p>
+          </div>
+        </a>
+
+                <!-- Pesquisa Desktop -->
+      <div class="hidden md:flex items-center space-x-2 bg-white rounded-full px-3 py-1 text-gray-600 focus-within:ring-2 ring-orange-400 transition relative">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-orange-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M9 17a8 8 0 100-16 8 8 0 000 16z" />
+        </svg>
+        <input type="search" placeholder="Buscar animal..." class="outline-none text-sm text-gray-700" />
+        <ul id="sugestoes-busca" class="absolute top-10 left-0 w-full bg-white border border-gray-200 rounded-lg shadow-lg text-sm text-gray-700 hidden z-40">
+        <li class="px-4 py-2 hover:bg-orange-100 cursor-pointer">Rex (Labrador)</li>
+        <li class="px-4 py-2 hover:bg-orange-100 cursor-pointer">Luna (Gato Siamês)</li>
+        <li class="px-4 py-2 hover:bg-orange-100 cursor-pointer">Thor (Pitbull)</li>
+        <li class="px-4 py-2 hover:bg-orange-100 cursor-pointer">Mel (Poodle)</li>
+        </ul>
+      </div>
+      <!-- Pesquisa Desktop -->
+
+
+    <!-- Navegação Desktop -->
+    <nav class="hidden md:flex space-x-8 font-medium text-sm">
+      <a href="index.html" class="hover:text-orange-300 transition-colors duration-200">Início</a>
+      <a href="cadastrar.html" class="hover:text-orange-300 transition-colors duration-200">Cadastrar Animal</a>
+      <a href="adotar.html" class="hover:text-orange-300 transition-colors duration-200">Adotar</a>
+      <a href="perdido.html" class="hover:text-orange-300 transition-colors duration-200">Animal Perdido</a>
+      <a href="encontrados.html" class="hover:text-orange-300 transition-colors duration-200">Animal Encontrado</a>
+      <a href="sobre.html" class="hover:text-orange-300 transition-colors duration-200">Sobre</a>
+      <a href="perfil.html" class="hover:text-orange-300 transition-colors duration-200">Perfil</a>
+    </nav>
+      <!-- Navegação Desktop -->
+
+    <!-- Ações Usuário -->
+    <div class="hidden md:flex items-center space-x-4">
+      <!-- Notificações -->
+      <button aria-label="Notificações" class="relative group">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white hover:text-orange-300 transition" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6 6 0 10-12 0v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+        </svg>
+        <span class="absolute top-0 right-0 inline-block w-2 h-2 bg-red-600 rounded-full ring-2 ring-white"></span>
+      </button>
+
+<!-- Botão Cadastrar com Dropdown de Formulário -->
+<div class="relative group">
+  <button id="btn-login" class="bg-white text-orange-600 font-semibold px-3 py-1.5 rounded-full hover:bg-orange-100 focus:outline-none flex items-center space-x-1">
+    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-orange-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+    </svg>
+    <span id="login-text">Login</span>
+  </button>
+  <!-- Formulário Dropdown -->
+  <div id="login-form" class="absolute right-0 mt-2 w-64 bg-white text-gray-700 rounded-lg shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-20 p-4 space-y-3">
+    <h2 class="text-orange-600 font-bold text-sm">Login de Usuário</h2>
+    <form id="form-login" class="space-y-3">
+      <div>
+        <label for="email" class="block text-xs font-semibold">Email</label>
+        <input type="email" id="login-email" name="email" placeholder="email@exemplo.com" class="w-full px-3 py-1.5 border border-gray-300 rounded focus:ring-orange-400 focus:outline-none text-sm" required>
+      </div>
+      <div>
+        <label for="senha" class="block text-xs font-semibold">Senha</label>
+        <input type="password" id="login-senha" name="senha" placeholder="••••••••" class="w-full px-3 py-1.5 border border-gray-300 rounded focus:ring-orange-400 focus:outline-none text-sm" required>
+      </div>
+      <button type="submit" class="w-full bg-orange-500 text-white font-semibold py-1.5 rounded hover:bg-orange-600 transition">Entrar</button>
+      <p class="text-xs text-center">Não tem conta? <a href="#" id="toggle-register" class="text-orange-500 hover:underline">Cadastre-se</a></p>
+    </form>
+    
+    <form id="form-register" class="space-y-3 hidden">
+      <h2 class="text-orange-600 font-bold text-sm">Cadastro de Usuário</h2>
+      <div>
+        <label for="nome" class="block text-xs font-semibold">Nome</label>
+        <input type="text" id="register-nome" name="nome" placeholder="Seu nome" class="w-full px-3 py-1.5 border border-gray-300 rounded focus:ring-orange-400 focus:outline-none text-sm" required>
+      </div>
+      <div>
+        <label for="email" class="block text-xs font-semibold">Email</label>
+        <input type="email" id="register-email" name="email" placeholder="email@exemplo.com" class="w-full px-3 py-1.5 border border-gray-300 rounded focus:ring-orange-400 focus:outline-none text-sm" required>
+      </div>
+      <div>
+        <label for="senha" class="block text-xs font-semibold">Senha</label>
+        <input type="password" id="register-senha" name="senha" placeholder="••••••••" class="w-full px-3 py-1.5 border border-gray-300 rounded focus:ring-orange-400 focus:outline-none text-sm" required>
+      </div>
+      <button type="submit" class="w-full bg-orange-500 text-white font-semibold py-1.5 rounded hover:bg-orange-600 transition">Cadastrar</button>
+      <p class="text-xs text-center">Já tem conta? <a href="#" id="toggle-login" class="text-orange-500 hover:underline">Faça login</a></p>
+    </form>
+  </div>
+</div>
+
+    </div>
+
+    <!-- Botão Hambúrguer Mobile -->
+    <button id="btn-menu" class="md:hidden flex flex-col space-y-1.5 focus:outline-none" aria-label="Abrir menu">
+      <span class="block w-6 h-0.5 bg-white rounded transition-transform duration-300 origin-center"></span>
+      <span class="block w-6 h-0.5 bg-white rounded transition-opacity duration-300"></span>
+      <span class="block w-6 h-0.5 bg-white rounded transition-transform duration-300 origin-center"></span>
+    </button>
+  </div>
+
+  <!-- Menu Mobile -->
+  <nav id="menu-mobile" class="md:hidden bg-orange-600 text-white px-6 py-4 space-y-4 hidden">
+    <a href="index.html" class="block hover:text-orange-200 transition">Início</a>
+    <a href="cadastrar.html" class="block hover:text-orange-200 transition">Cadastrar Animal</a>
+    <a href="adotar.html" class="block hover:text-orange-200 transition">Adotar</a>
+    <a href="perdido.html" class="block hover:text-orange-200 transition">Animal Perdido</a>
+    <a href="encontrados.html" class="block hover:text-orange-200 transition">Animal Encontrado</a>
+    <a href="sobre.html" class="block hover:text-orange-200 transition">Sobre</a>
+    <a href="perfil.html" class="block hover:text-orange-200 transition">Perfil</a>
+  </nav>
+</header>
+
+
+
+  <!-- Conteúdo Cadastrar Animal -->
+<main class="max-w-4xl mx-auto px-6 py-12 bg-white shadow-md rounded-lg mt-8 mb-16" id="cadastrar">
+  <h2 class="text-2xl font-bold text-orange-600 mb-6">Cadastrar Novo Animal</h2>
+
+  <form class="space-y-6">
+    <!-- Tipo de Registro -->
+    <div>
+      <label class="block text-sm font-medium text-gray-700 mb-1">Tipo de Registro</label>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <!-- Botão Adoção -->
+        <label class="inline-flex items-center justify-center p-4 border border-gray-300 rounded-md cursor-pointer hover:bg-orange-50 has-[:checked]:bg-orange-100 has-[:checked]:border-orange-400">
+          <input type="radio" name="tipo_registro" value="adocao" required class="hidden peer" />
+          <div class="text-center">
+            <svg class="w-8 h-8 mx-auto mb-2 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+            </svg>
+            <span class="font-medium">Adoção</span>
+          </div>
+        </label>
+        
+        <!-- Botão Animal Perdido -->
+        <label class="inline-flex items-center justify-center p-4 border border-gray-300 rounded-md cursor-pointer hover:bg-orange-50 has-[:checked]:bg-orange-100 has-[:checked]:border-orange-400">
+          <input type="radio" name="tipo_registro" value="perdido" class="hidden peer" />
+          <div class="text-center">
+            <svg class="w-8 h-8 mx-auto mb-2 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <span class="font-medium">Animal Perdido</span>
+          </div>
+        </label>
+        
+        <!-- Botão Animal Encontrado -->
+        <label class="inline-flex items-center justify-center p-4 border border-gray-300 rounded-md cursor-pointer hover:bg-orange-50 has-[:checked]:bg-orange-100 has-[:checked]:border-orange-400">
+          <input type="radio" name="tipo_registro" value="encontrado" class="hidden peer" />
+          <div class="text-center">
+            <svg class="w-8 h-8 mx-auto mb-2 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+            </svg>
+            <span class="font-medium">Animal Encontrado</span>
+          </div>
+        </label>
+      </div>
+    </div>
+
+    <!-- Nome do Animal -->
+    <div>
+      <label for="nome" class="block text-sm font-medium text-gray-700 mb-1">Título da Postagem</label>
+      <input type="text" id="nome" name="nome" required
+        class="w-full border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-orange-400" />
+    </div>
+
+    <!-- Espécie -->
+    <div>
+      <label for="especie" class="block text-sm font-medium text-gray-700 mb-1">Espécie</label>
+      <select id="especie" name="especie" required
+        class="w-full border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-orange-400">
+        <option value="">Selecione...</option>
+        <option value="cachorro">Cachorro</option>
+        <option value="gato">Gato</option>
+        <option value="outro">Outro</option>
+      </select>
+    </div>
+
+    <!-- Idade -->
+    <div>
+      <label for="idade" class="block text-sm font-medium text-gray-700 mb-1">Idade (em anos)</label>
+      <input type="number" id="idade" name="idade" min="0" required
+        class="w-full border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-orange-400" />
+    </div>
+
+    <!-- Sexo -->
+    <div>
+      <label class="block text-sm font-medium text-gray-700 mb-1">Sexo</label>
+      <div class="flex space-x-4">
+        <label class="inline-flex items-center">
+          <input type="radio" name="sexo" value="macho" required class="form-radio text-orange-500" />
+          <span class="ml-2">Macho</span>
+        </label>
+        <label class="inline-flex items-center">
+          <input type="radio" name="sexo" value="femea" class="form-radio text-orange-500" />
+          <span class="ml-2">Fêmea</span>
+        </label>
+      </div>
+    </div>
+
+    <!-- Descrição -->
+    <div>
+      <label for="descricao" class="block text-sm font-medium text-gray-700 mb-1">Descrição</label>
+      <textarea id="descricao" name="descricao" rows="4" required
+        class="w-full border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-orange-400"></textarea>
+    </div>
+
+    <!-- Imagem -->
+    <div>
+      <label for="imagem" class="block text-sm font-medium text-gray-700 mb-1">Foto do Animal</label>
+      <input type="file" id="imagem" name="imagem" accept="image/*"
+        class="w-full border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-orange-400" />
+    </div>
+
+    <!-- Localização -->
+    <div>
+      <label for="localizacao" class="block text-sm font-medium text-gray-700 mb-1">Localização Aproximada</label>
+      <input type="text" id="localizacao" name="localizacao" placeholder="Ex: Bairro, Cidade"
+        class="w-full border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-orange-400" />
+    </div>
+
+    <!-- Informações Adicionais Condicionais -->
+    <div id="info-adicional" class="hidden space-y-4">
+      <!-- Para animais perdidos/encontrados -->
+      <div id="perdido-encontrado-info" class="hidden">
+        <div>
+          <label for="data" class="block text-sm font-medium text-gray-700 mb-1">Data do Ocorrido</label>
+          <input type="date" id="data" name="data"
+            class="w-full border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-orange-400" />
+        </div>
+        <div>
+          <label for="recompensa" class="block text-sm font-medium text-gray-700 mb-1">Recompensa (opcional)</label>
+          <input type="text" id="recompensa" name="recompensa" placeholder="Valor em R$"
+            class="w-full border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-orange-400" />
+        </div>
+      </div>
+      
+      <!-- Para animais para adoção -->
+      <div id="adocao-info" class="hidden">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Vacinado</label>
+          <div class="flex space-x-4">
+            <label class="inline-flex items-center">
+              <input type="radio" name="vacinado" value="sim" class="form-radio text-orange-500" />
+              <span class="ml-2">Sim</span>
+            </label>
+            <label class="inline-flex items-center">
+              <input type="radio" name="vacinado" value="nao" class="form-radio text-orange-500" />
+              <span class="ml-2">Não</span>
+            </label>
+            <label class="inline-flex items-center">
+              <input type="radio" name="vacinado" value="nao_sei" class="form-radio text-orange-500" />
+              <span class="ml-2">Não sei</span>
+            </label>
+          </div>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Castrado</label>
+          <div class="flex space-x-4">
+            <label class="inline-flex items-center">
+              <input type="radio" name="castrado" value="sim" class="form-radio text-orange-500" />
+              <span class="ml-2">Sim</span>
+            </label>
+            <label class="inline-flex items-center">
+              <input type="radio" name="castrado" value="nao" class="form-radio text-orange-500" />
+              <span class="ml-2">Não</span>
+            </label>
+            <label class="inline-flex items-center">
+              <input type="radio" name="castrado" value="nao_sei" class="form-radio text-orange-500" />
+              <span class="ml-2">Não sei</span>
+            </label>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Botão Enviar -->
+    <div>
+      <button type="submit"
+        class="w-full bg-orange-500 hover:bg-orange-600 text-white font-semibold py-2 px-4 rounded-lg transition shadow-md">
+        Cadastrar Animal
+      </button>
+    </div>
+    <!-- Modal de Confirmação -->
+<div id="modal-confirmacao" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+  <div class="bg-white p-6 rounded-lg shadow-lg max-w-sm text-center">
+    <h3 class="text-xl font-semibold text-green-600 mb-4">Sucesso!</h3>
+    <p class="text-gray-700 mb-4">Animal cadastrado com sucesso.<br>Verifique o seu perfil.</p>
+    <button id="fechar-modal" class="mt-2 px-4 py-2 bg-orange-500 text-white rounded hover:bg-orange-600">OK</button>
+  </div>
+</div>
+
+  </form>
+</main>
+
+<!--Conteudo Cadastrar animal-->
+   
+
+<!-- Footer -->
+<footer class="bg-gray-900 text-gray-300 py-10">
+  <div class="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-4 gap-8">
+    
+    <!-- Sobre -->
+    <div>
+      <h4 class="text-xl font-semibold mb-4 text-white">Amor e Patas</h4>
+      <p class="text-gray-400 mb-4">
+        Conectando vidas e corações para um mundo melhor para nossos amigos peludos.
+      </p>
+    </div>
+
+    <!-- Redes Sociais -->
+    <div>
+      <h4 class="text-xl font-semibold mb-4 text-white">Siga-nos</h4>
+      <div class="flex space-x-6">
+        <a href="https://facebook.com/amorepatas" target="_blank" rel="noopener noreferrer" aria-label="Facebook" class="hover:text-orange-400">
+          <svg class="w-6 h-6 fill-current" viewBox="0 0 24 24" >
+            <path d="M22.675 0H1.325C.593 0 0 .593 0 1.326v21.348C0 23.407.593 24 1.325 24h11.495v-9.294H9.691v-3.622h3.129V8.413c0-3.1 1.894-4.788 4.659-4.788 1.325 0 2.466.099 2.798.143v3.24l-1.92.001c-1.504 0-1.795.715-1.795 1.763v2.313h3.587l-.467 3.622h-3.12V24h6.116c.73 0 1.324-.593 1.324-1.326V1.326C24 .593 23.407 0 22.675 0z"/>
+          </svg>
+        </a>
+        <a href="https://instagram.com/amorepatas" target="_blank" rel="noopener noreferrer" aria-label="Instagram" class="hover:text-orange-400">
+          <svg class="w-6 h-6 fill-current" viewBox="0 0 24 24" >
+            <path d="M7.75 2h8.5A5.75 5.75 0 0122 7.75v8.5A5.75 5.75 0 0116.25 22h-8.5A5.75 5.75 0 012 16.25v-8.5A5.75 5.75 0 017.75 2zm0 2A3.75 3.75 0 004 7.75v8.5A3.75 3.75 0 007.75 20h8.5a3.75 3.75 0 003.75-3.75v-8.5A3.75 3.75 0 0016.25 4h-8.5zm8.75 1a1 1 0 110 2 1 1 0 010-2zM12 7a5 5 0 110 10 5 5 0 010-10zm0 2a3 3 0 100 6 3 3 0 000-6z"/>
+          </svg>
+        </a>
+        <a href="https://twitter.com/amorepatas" target="_blank" rel="noopener noreferrer" aria-label="Twitter" class="hover:text-orange-400">
+          <svg class="w-6 h-6 fill-current" viewBox="0 0 24 24" >
+            <path d="M23 3a10.9 10.9 0 01-3.14.86A4.48 4.48 0 0022.4.36a9.09 9.09 0 01-2.88 1.1A4.52 4.52 0 0016.47 0c-2.49 0-4.5 2.03-4.5 4.53 0 .35.04.7.11 1.03A12.85 12.85 0 013 1.16a4.55 4.55 0 00-.61 2.28c0 1.57.79 2.96 1.99 3.78A4.5 4.5 0 012 6.6v.06a4.52 4.52 0 003.61 4.43 4.48 4.48 0 01-2.04.08 4.53 4.53 0 004.23 3.13A9.05 9.05 0 012 19.54 12.76 12.76 0 008.29 21c7.55 0 11.68-6.27 11.68-11.7 0-.18 0-.35-.01-.53A8.34 8.34 0 0023 3z"/>
+          </svg>
+        </a>
+      </div>
+    </div>
+  </div>
+</footer>
+<script>
+// ---------- Funções utilitárias ----------
+const getElement = (id) => document.getElementById(id);
+const getLocalStorageItem = (key) => JSON.parse(localStorage.getItem(key)) || [];
+const setLocalStorageItem = (key, value) => localStorage.setItem(key, JSON.stringify(value));
+
+// ---------- Gerenciamento de usuário ----------
+const userManager = {
+  getCurrentUser: () => JSON.parse(localStorage.getItem('usuarioLogado')),
+  login: (user) => {
+    setLocalStorageItem('usuarioLogado', user);
+    updateUIAfterLogin(user);
+    showAlert('Login realizado com sucesso!');
+  },
+  register: (user) => {
+    const users = getLocalStorageItem('usuarios');
+    if (users.some(u => u.email === user.email)) {
+      showAlert('Este email já está cadastrado!', 'error');
+      return false;
+    }
+    users.push(user);
+    setLocalStorageItem('usuarios', users);
+    userManager.login(user);
+    showAlert('Cadastro realizado com sucesso! Você está logado.');
+    return true;
+  },
+  logout: () => localStorage.removeItem('usuarioLogado')
+};
+
+// ---------- UI helpers ----------
+const updateUIAfterLogin = (user) => {
+  const loginText = getElement('login-text');
+  const btnLogin  = getElement('btn-login');
+
+  if (loginText && btnLogin) {
+    loginText.textContent = user.nome.split(' ')[0];
+    btnLogin.classList.add('logged-in');
+  }
+
+  const loginForm = getElement('login-form');
+  if (loginForm) {
+    loginForm.classList.remove('group-hover:visible', 'group-hover:opacity-100');
+    loginForm.classList.add('opacity-0', 'invisible');
+  }
+};
+
+const showAlert = (message, type = 'success') => alert(message);
+
+// ---------- Controle de formulários ----------
+const formController = {
+  initLoginForm: () => {
+    const form = getElement('form-login');
+    if (!form) return;
+
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const email = getElement('login-email').value;
+      const senha = getElement('login-senha').value;
+      const users = getLocalStorageItem('usuarios');
+      const user  = users.find(u => u.email === email && u.senha === senha);
+      user ? userManager.login(user) : showAlert('Email ou senha incorretos!', 'error');
+    });
+  },
+
+  initRegisterForm: () => {
+    const form = getElement('form-register');
+    if (!form) return;
+
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const user = {
+        nome:  getElement('register-nome').value,
+        email: getElement('register-email').value,
+        senha: getElement('register-senha').value
+      };
+      if (userManager.register(user)) {
+        getElement('form-register').classList.add('hidden');
+        getElement('form-login')?.classList.remove('hidden');
+      }
+    });
+  },
+
+  initToggleForms: () => {
+    getElement('toggle-register')?.addEventListener('click', (e) => {
+      e.preventDefault();
+      getElement('form-login').classList.add('hidden');
+      getElement('form-register').classList.remove('hidden');
+    });
+    getElement('toggle-login')?.addEventListener('click', (e) => {
+      e.preventDefault();
+      getElement('form-register').classList.add('hidden');
+      getElement('form-login').classList.remove('hidden');
+    });
+  },
+
+  initAnimalForm: () => {
+    const formAnimal = document.querySelector('#cadastrar form');
+    if (!formAnimal) return;
+
+    // troca de tipo de registro ------------------------------------------
+    formAnimal.querySelectorAll('input[name="tipo_registro"]').forEach(radio => {
+      radio.addEventListener('change', function () {
+        const infoAdicional          = getElement('info-adicional');
+        const adocaoInfo             = getElement('adocao-info');
+        const perdidoEncontradoInfo  = getElement('perdido-encontrado-info');
+
+        infoAdicional?.classList.remove('hidden');
+
+        if (this.value === 'adocao') {
+          adocaoInfo?.classList.remove('hidden');
+          perdidoEncontradoInfo?.classList.add('hidden');
+        } else {
+          adocaoInfo?.classList.add('hidden');
+          perdidoEncontradoInfo?.classList.remove('hidden');
+        }
+      });
+    });
+
+    // submissão do formulário -------------------------------------------
+    formAnimal.addEventListener('submit', (e) => {
+      e.preventDefault();
+
+      // --- (opcional) salvar animal em localStorage --------------------
+      /*
+      const animais = getLocalStorageItem('animais');
+      const formData = new FormData(formAnimal);
+      animais.push(Object.fromEntries(formData.entries()));
+      setLocalStorageItem('animais', animais);
+      */
+
+      // exibir modal de confirmação -------------------------------------
+      const modal = getElement('modal-confirmacao');
+      modal?.classList.remove('hidden');
+
+      // resetar formulário e esconder campos adicionais -----------------
+      formAnimal.reset();
+      getElement('info-adicional')?.classList.add('hidden');
+      getElement('adocao-info')?.classList.add('hidden');
+      getElement('perdido-encontrado-info')?.classList.add('hidden');
+    });
+
+    // botão de fechar modal ---------------------------------------------
+    getElement('fechar-modal')?.addEventListener('click', () => {
+      getElement('modal-confirmacao').classList.add('hidden');
+    });
+  }
+};
+
+// ---------- Menu mobile ----------
+const initMobileMenu = () => {
+  const btnMenu    = getElement('btn-menu');
+  const menuMobile = getElement('menu-mobile');
+  const spans      = btnMenu?.querySelectorAll('span');
+
+  btnMenu?.addEventListener('click', () => {
+    menuMobile?.classList.toggle('hidden');
+    spans?.forEach((span, index) => {
+      if (index === 0) {
+        span.classList.toggle('rotate-45');
+        span.classList.toggle('translate-y-1.5');
+      } else if (index === 1) {
+        span.classList.toggle('opacity-0');
+      } else if (index === 2) {
+        span.classList.toggle('-rotate-45');
+        span.classList.toggle('-translate-y-1.5');
+      }
+    });
+  });
+};
+
+// ---------- Scroll header ----------
+const initScrollHeader = () => {
+  window.addEventListener('scroll', () => {
+    getElement('header')?.classList.toggle('shadow-xl', window.scrollY > 10);
+  });
+};
+
+// ---------- Inicialização ----------
+document.addEventListener('DOMContentLoaded', () => {
+  // manter sessão
+  const user = userManager.getCurrentUser();
+  if (user) updateUIAfterLogin(user);
+
+  // componentes
+  initMobileMenu();
+  initScrollHeader();
+  formController.initToggleForms();
+  formController.initLoginForm();
+  formController.initRegisterForm();
+  formController.initAnimalForm();
+});
+const campoBusca = document.querySelector('input[type="search"]');
+  const sugestoes = document.getElementById('sugestoes-busca');
+
+  campoBusca.addEventListener('focus', () => {
+    sugestoes.classList.remove('hidden');
+  });
+
+  campoBusca.addEventListener('blur', () => {
+    // Oculta após um pequeno atraso para permitir clique
+    setTimeout(() => sugestoes.classList.add('hidden'), 200);
+  });
+
+  // Preenche o campo com o clique
+  sugestoes.querySelectorAll('li').forEach(item => {
+    item.addEventListener('click', () => {
+      campoBusca.value = item.textContent;
+      sugestoes.classList.add('hidden');
+    });
+  });
+</script>
+
+</body>
+</html>

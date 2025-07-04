@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Meu Perfil - Amor e Patas</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+    }
+    .logged-in {
+      background-color: #f97316;
+      color: white;
+    }
+  </style>
+</head>
+
+<body class="bg-gray-50 text-gray-800">
+
+  <!-- Header -->
+  <header class="bg-gradient-to-r from-orange-400 to-orange-600 text-white shadow-md sticky top-0 z-50 transition-shadow duration-300" id="header">
+    <div class="w-full px-6 py-4 flex items-center justify-between">
+      <!-- Logo + Título + Slogan -->
+      <div class="flex items-center space-x-3 cursor-pointer group">
+        <div class="text-3xl animate-pulse select-none">🐾</div>
+        <div>
+          <h1 class="font-extrabold text-2xl tracking-wide select-none">Amor e Patas</h1>
+          <p class="text-xs opacity-75 group-hover:opacity-100 transition-opacity select-none">Conectando vidas com amor</p>
+        </div>
+      </div>
+
+      <!-- Pesquisa Desktop -->
+      <div class="hidden md:flex items-center space-x-2 bg-white rounded-full px-3 py-1 text-gray-600 focus-within:ring-2 ring-orange-400 transition">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-orange-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M9 17a8 8 0 100-16 8 8 0 000 16z" />
+        </svg>
+        <input type="search" placeholder="Buscar animal..." class="outline-none text-sm text-gray-700" />
+      </div>
+
+      <!-- Navegação Desktop -->
+    <!-- Navegação Desktop -->
+    <nav class="hidden md:flex space-x-8 font-medium text-sm">
+      <a href="index.html" class="hover:text-orange-300 transition-colors duration-200">Início</a>
+      <a href="cadastrar.html" class="hover:text-orange-300 transition-colors duration-200">Cadastrar Animal</a>
+      <a href="adotar.html" class="hover:text-orange-300 transition-colors duration-200">Adotar</a>
+      <a href="perdido.html" class="hover:text-orange-300 transition-colors duration-200">Animal Perdido</a>
+      <a href="encontrados.html" class="hover:text-orange-300 transition-colors duration-200">Animal Encontrado</a>
+      <a href="sobre.html" class="hover:text-orange-300 transition-colors duration-200">Sobre</a>
+      <a href="perfil.html" class="hover:text-orange-300 transition-colors duration-200">Perfil</a>
+    </nav>
+
+      <!-- Ações Usuário -->
+      <div class="hidden md:flex items-center space-x-4">
+        <!-- Notificações -->
+        <button aria-label="Notificações" class="relative group">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white hover:text-orange-300 transition" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6 6 0 10-12 0v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+          </svg>
+          <span class="absolute top-0 right-0 inline-block w-2 h-2 bg-red-600 rounded-full ring-2 ring-white"></span>
+        </button>
+
+        <!-- Botão Login/Cadastro -->
+        <div class="relative group" id="login-container">
+          <button id="btn-login" class="bg-white text-orange-600 font-semibold px-3 py-1.5 rounded-full hover:bg-orange-100 focus:outline-none flex items-center space-x-1">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-orange-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+            </svg>
+            <span id="login-text">Login</span>
+          </button>
+          <!-- Formulário Dropdown -->
+          <div id="login-form" class="absolute right-0 mt-2 w-64 bg-white text-gray-700 rounded-lg shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-20 p-4 space-y-3">
+            <h2 class="text-orange-600 font-bold text-sm">Login de Usuário</h2>
+            <form id="form-login" class="space-y-3">
+              <div>
+                <label for="email" class="block text-xs font-semibold">Email</label>
+                <input type="email" id="login-email" name="email" placeholder="email@exemplo.com" class="w-full px-3 py-1.5 border border-gray-300 rounded focus:ring-orange-400 focus:outline-none text-sm" required>
+              </div>
+              <div>
+                <label for="senha" class="block text-xs font-semibold">Senha</label>
+                <input type="password" id="login-senha" name="senha" placeholder="••••••••" class="w-full px-3 py-1.5 border border-gray-300 rounded focus:ring-orange-400 focus:outline-none text-sm" required>
+              </div>
+              <button type="submit" class="w-full bg-orange-500 text-white font-semibold py-1.5 rounded hover:bg-orange-600 transition">Entrar</button>
+              <p class="text-xs text-center">Não tem conta? <a href="#" id="toggle-register" class="text-orange-500 hover:underline">Cadastre-se</a></p>
+            </form>
+            
+            <form id="form-register" class="space-y-3 hidden">
+              <h2 class="text-orange-600 font-bold text-sm">Cadastro de Usuário</h2>
+              <div>
+                <label for="nome" class="block text-xs font-semibold">Nome</label>
+                <input type="text" id="register-nome" name="nome" placeholder="Seu nome" class="w-full px-3 py-1.5 border border-gray-300 rounded focus:ring-orange-400 focus:outline-none text-sm" required>
+              </div>
+              <div>
+                <label for="email" class="block text-xs font-semibold">Email</label>
+                <input type="email" id="register-email" name="email" placeholder="email@exemplo.com" class="w-full px-3 py-1.5 border border-gray-300 rounded focus:ring-orange-400 focus:outline-none text-sm" required>
+              </div>
+              <div>
+                <label for="senha" class="block text-xs font-semibold">Senha</label>
+                <input type="password" id="register-senha" name="senha" placeholder="••••••••" class="w-full px-3 py-1.5 border border-gray-300 rounded focus:ring-orange-400 focus:outline-none text-sm" required>
+              </div>
+              <button type="submit" class="w-full bg-orange-500 text-white font-semibold py-1.5 rounded hover:bg-orange-600 transition">Cadastrar</button>
+              <p class="text-xs text-center">Já tem conta? <a href="#" id="toggle-login" class="text-orange-500 hover:underline">Faça login</a></p>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <!-- Botão Hambúrguer Mobile -->
+      <button id="btn-menu" class="md:hidden flex flex-col space-y-1.5 focus:outline-none" aria-label="Abrir menu">
+        <span class="block w-6 h-0.5 bg-white rounded transition-transform duration-300 origin-center"></span>
+        <span class="block w-6 h-0.5 bg-white rounded transition-opacity duration-300"></span>
+        <span class="block w-6 h-0.5 bg-white rounded transition-transform duration-300 origin-center"></span>
+      </button>
+    </div>
+
+  <!-- Menu Mobile -->
+  <nav id="menu-mobile" class="md:hidden bg-orange-600 text-white px-6 py-4 space-y-4 hidden">
+    <a href="index.html" class="block hover:text-orange-200 transition">Início</a>
+    <a href="cadastrar.html" class="block hover:text-orange-200 transition">Cadastrar Animal</a>
+    <a href="adotar.html" class="block hover:text-orange-200 transition">Adotar</a>
+    <a href="sobre.html" class="block hover:text-orange-200 transition">Sobre</a>
+    <a href="perfil.html" class="block hover:text-orange-200 transition">Perfil</a>
+    <a href="perdido.html" class="block hover:text-orange-200 transition">Animal Perdido</a>
+    <a href="encontrados.html" class="block hover:text-orange-200 transition">Animal Encontrado</a>
+  </nav>
+  </header>
+
+  <!-- Conteúdo Principal -->
+  <main class="max-w-5xl mx-auto px-6 py-12" id="perfil-conteudo">
+    <!-- Conteúdo será carregado dinamicamente via JavaScript -->
+    <div class="text-center py-20">
+      <p class="text-gray-500">Carregando informações do perfil...</p>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-gray-900 text-gray-300 py-10">
+    <div class="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-4 gap-8">
+      <!-- Sobre -->
+      <div>
+        <h4 class="text-xl font-semibold mb-4 text-white">Amor e Patas</h4>
+        <p class="text-gray-400 mb-4">
+          Conectando vidas e corações para um mundo melhor para nossos amigos peludos.
+        </p>
+      </div>
+      <!-- Redes Sociais -->
+      <div>
+        <h4 class="text-xl font-semibold mb-4 text-white">Siga-nos</h4>
+        <div class="flex space-x-6">
+          <a href="https://facebook.com/amorepatas" target="_blank" rel="noopener noreferrer" aria-label="Facebook" class="hover:text-orange-400">
+            <svg class="w-6 h-6 fill-current" viewBox="0 0 24 24" >
+              <path d="M22.675 0H1.325C.593 0 0 .593 0 1.326v21.348C0 23.407.593 24 1.325 24h11.495v-9.294H9.691v-3.622h3.129V8.413c0-3.1 1.894-4.788 4.659-4.788 1.325 0 2.466.099 2.798.143v3.24l-1.92.001c-1.504 0-1.795.715-1.795 1.763v2.313h3.587l-.467 3.622h-3.12V24h6.116c.73 0 1.324-.593 1.324-1.326V1.326C24 .593 23.407 0 22.675 0z"/>
+            </svg>
+          </a>
+          <a href="https://instagram.com/amorepatas" target="_blank" rel="noopener noreferrer" aria-label="Instagram" class="hover:text-orange-400">
+            <svg class="w-6 h-6 fill-current" viewBox="0 0 24 24" >
+              <path d="M7.75 2h8.5A5.75 5.75 0 0122 7.75v8.5A5.75 5.75 0 0116.25 22h-8.5A5.75 5.75 0 012 16.25v-8.5A5.75 5.75 0 017.75 2zm0 2A3.75 3.75 0 004 7.75v8.5A3.75 3.75 0 007.75 20h8.5a3.75 3.75 0 003.75-3.75v-8.5A3.75 3.75 0 0016.25 4h-8.5zm8.75 1a1 1 0 110 2 1 1 0 010-2zM12 7a5 5 0 110 10 5 5 0 010-10zm0 2a3 3 0 100 6 3 3 0 000-6z"/>
+            </svg>
+          </a>
+          <a href="https://twitter.com/amorepatas" target="_blank" rel="noopener noreferrer" aria-label="Twitter" class="hover:text-orange-400">
+            <svg class="w-6 h-6 fill-current" viewBox="0 0 24 24" >
+              <path d="M23 3a10.9 10.9 0 01-3.14.86A4.48 4.48 0 0022.4.36a9.09 9.09 0 01-2.88 1.1A4.52 4.52 0 0016.47 0c-2.49 0-4.5 2.03-4.5 4.53 0 .35.04.7.11 1.03A12.85 12.85 0 013 1.16a4.55 4.55 0 00-.61 2.28c0 1.57.79 2.96 1.99 3.78A4.5 4.5 0 012 6.6v.06a4.52 4.52 0 003.61 4.43 4.48 4.48 0 01-2.04.08 4.53 4.53 0 004.23 3.13A9.05 9.05 0 012 19.54 12.76 12.76 0 008.29 21c7.55 0 11.68-6.27 11.68-11.7 0-.18 0-.35-.01-.53A8.34 8.34 0 0023 3z"/>
+            </svg>
+          </a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Verificar se o usuário está logado
+      const usuarioLogado = JSON.parse(localStorage.getItem('usuarioLogado'));
+      const perfilConteudo = document.getElementById('perfil-conteudo');
+      
+      if (usuarioLogado) {
+        // Atualizar o cabeçalho
+        const loginText = document.getElementById('login-text');
+        const btnLogin = document.getElementById('btn-login');
+        
+        loginText.textContent = usuarioLogado.nome.split(' ')[0];
+        btnLogin.classList.add('logged-in');
+        
+        // Carregar conteúdo do perfil
+        perfilConteudo.innerHTML = `
+          <h2 class="text-4xl font-extrabold text-orange-600 mb-10 text-center">Meu Perfil</h2>
+
+          <!-- Bloco principal do perfil -->
+          <div class="bg-white rounded-2xl shadow-lg p-8 mb-12 flex flex-col md:flex-row items-center gap-8">
+            <!-- Foto de perfil -->
+            <div class="shrink-0">
+              <div class="w-36 h-36 rounded-full border-4 border-orange-500 shadow-md bg-orange-100 flex items-center justify-center text-5xl font-bold text-orange-600">
+                ${usuarioLogado.nome.charAt(0).toUpperCase()}
+              </div>
+            </div>
+
+            <!-- Informações do usuário -->
+            <div class="text-center md:text-left">
+              <h3 class="text-3xl font-bold text-gray-800">${usuarioLogado.nome}</h3>
+              <p class="text-gray-600 text-lg">${usuarioLogado.email}</p>
+              <p class="text-sm text-gray-500 mt-1">Membro desde <strong>${new Date().toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })}</strong></p>
+              <div class="mt-4 flex flex-wrap justify-center md:justify-start gap-3">
+                <a href="#editar-perfil" class="bg-orange-500 text-white px-5 py-2 rounded-md hover:bg-orange-600 transition font-medium">Editar Perfil</a>
+                <button id="btn-logout" class="bg-gray-200 text-gray-700 px-5 py-2 rounded-md hover:bg-gray-300 transition font-medium">Sair</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Estatísticas rápidas -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+            <div class="bg-orange-50 border-l-4 border-orange-500 p-5 rounded-xl shadow-sm">
+              <h4 class="text-lg font-bold text-orange-600">Animais Cadastrados</h4>
+              <p class="text-gray-700 text-2xl mt-2 font-semibold">0</p>
+              <a href="#meus-animais" class="text-sm text-orange-500 hover:underline mt-1 inline-block">Ver todos</a>
+            </div>
+            <div class="bg-orange-50 border-l-4 border-orange-500 p-5 rounded-xl shadow-sm">
+              <h4 class="text-lg font-bold text-orange-600">Adoções Realizadas</h4>
+              <p class="text-gray-700 text-2xl mt-2 font-semibold">0</p>
+              <a href="#adoções" class="text-sm text-orange-500 hover:underline mt-1 inline-block">Ver histórico</a>
+            </div>
+            <div class="bg-orange-50 border-l-4 border-orange-500 p-5 rounded-xl shadow-sm">
+              <h4 class="text-lg font-bold text-orange-600">Favoritos</h4>
+              <p class="text-gray-700 text-2xl mt-2 font-semibold">0</p>
+              <a href="#favoritos" class="text-sm text-orange-500 hover:underline mt-1 inline-block">Ver lista</a>
+            </div>
+            <div class="bg-orange-50 border-l-4 border-orange-500 p-5 rounded-xl shadow-sm">
+              <h4 class="text-lg font-bold text-orange-600">Mensagens</h4>
+              <p class="text-gray-700 text-2xl mt-2 font-semibold">0 nova</p>
+              <a href="#mensagens" class="text-sm text-orange-500 hover:underline mt-1 inline-block">Acessar mensagens</a>
+            </div>
+          </div>
+
+          <!-- Atividades recentes -->
+          <section class="bg-white rounded-xl shadow-md p-6">
+            <h4 class="text-2xl font-bold text-gray-800 mb-4">Atividades Recentes</h4>
+            <ul class="space-y-4 text-gray-700 text-sm">
+              <li>✅ Você se cadastrou no Amor e Patas em ${new Date().toLocaleDateString('pt-BR')}</li>
+              <li>⭐ Explore os animais disponíveis para adoção!</li>
+              <li>🐾 Cadastre seu primeiro animal para começar.</li>
+            </ul>
+          </section>
+        `;
+
+        // Adicionar evento de logout
+        document.getElementById('btn-logout').addEventListener('click', function() {
+          localStorage.removeItem('usuarioLogado');
+          window.location.href = 'index.html';
+        });
+      } else {
+        // Usuário não está logado
+        perfilConteudo.innerHTML = `
+          <div class="text-center py-20">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            </svg>
+            <h3 class="text-2xl font-medium mt-6">Acesso restrito</h3>
+            <p class="mt-4 text-gray-600 max-w-md mx-auto">Você precisa estar logado para acessar esta página.</p>
+            <div class="mt-8 space-x-4">
+              <a href="index.html#login" class="bg-orange-500 text-white font-semibold py-2 px-6 rounded hover:bg-orange-600 transition inline-block">Fazer Login</a>
+              <a href="index.html#login" class="bg-white text-orange-500 font-semibold py-2 px-6 rounded border border-orange-500 hover:bg-orange-50 transition inline-block">Cadastrar</a>
+            </div>
+          </div>
+        `;
+      }
+
+      // Menu mobile
+      const btnMenu = document.getElementById('btn-menu');
+      const menuMobile = document.getElementById('menu-mobile');
+      const spans = btnMenu.querySelectorAll('span');
+
+      btnMenu.addEventListener('click', () => {
+        menuMobile.classList.toggle('hidden');
+        spans[0].classList.toggle('rotate-45');
+        spans[0].classList.toggle('translate-y-1.5');
+        spans[1].classList.toggle('opacity-0');
+        spans[2].classList.toggle('-rotate-45');
+        spans[2].classList.toggle('-translate-y-1.5');
+      });
+
+      // Scroll header
+      window.addEventListener('scroll', () => {
+        const header = document.getElementById('header');
+        header.classList.toggle('shadow-xl', window.scrollY > 10);
+      });
+    });
+  </script>
+</body>
+</html>

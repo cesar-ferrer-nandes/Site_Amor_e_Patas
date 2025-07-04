@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Amor e Patas</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script
+  src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js">
+</script>
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+    }
+  </style>
+</head>
+
+<body class="bg-gray-50 text-gray-800">
+
+  <!-- Header -->
+<header class="bg-gradient-to-r from-orange-400 to-orange-600 text-white shadow-md sticky top-0 z-50 transition-shadow duration-300" id="header">
+  <div class="w-full px-6 py-4 flex items-center justify-between">
+    <!-- Logo + Título + Slogan -->
+        <!-- Logo + Título + Slogan com link para index.html -->
+        <a href="index.html" class="flex items-center space-x-1 cursor-pointer group">
+          <!-- Substituído o emoji por imagem -->
+          <img src="/imagem/Logo_2.png" alt="Logo Amor e Patas" class="w-20 h-20 object-contain" />
+          
+          <div>
+            <h1 class="font-extrabold text-2xl tracking-wide select-none">Amor e Patas</h1>
+            <p class="text-xs opacity-75 group-hover:opacity-100 transition-opacity select-none">
+              Conectando vidas com amor
+            </p>
+          </div>
+        </a>
+
+                <!-- Pesquisa Desktop -->
+      <div class="hidden md:flex items-center space-x-2 bg-white rounded-full px-3 py-1 text-gray-600 focus-within:ring-2 ring-orange-400 transition relative">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-orange-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M9 17a8 8 0 100-16 8 8 0 000 16z" />
+        </svg>
+        <input type="search" placeholder="Buscar animal..." class="outline-none text-sm text-gray-700" />
+        <ul id="sugestoes-busca" class="absolute top-10 left-0 w-full bg-white border border-gray-200 rounded-lg shadow-lg text-sm text-gray-700 hidden z-40">
+        <li class="px-4 py-2 hover:bg-orange-100 cursor-pointer">Rex (Labrador)</li>
+        <li class="px-4 py-2 hover:bg-orange-100 cursor-pointer">Luna (Gato Siamês)</li>
+        <li class="px-4 py-2 hover:bg-orange-100 cursor-pointer">Thor (Pitbull)</li>
+        <li class="px-4 py-2 hover:bg-orange-100 cursor-pointer">Mel (Poodle)</li>
+        </ul>
+      </div>
+      <!-- Pesquisa Desktop -->
+
+
+    <!-- Navegação Desktop -->
+    <nav class="hidden md:flex space-x-8 font-medium text-sm">
+      <a href="index.html" class="hover:text-orange-300 transition-colors duration-200">Início</a>
+      <a href="cadastrar.html" class="hover:text-orange-300 transition-colors duration-200">Cadastrar Animal</a>
+      <a href="adotar.html" class="hover:text-orange-300 transition-colors duration-200">Adotar</a>
+      <a href="perdido.html" class="hover:text-orange-300 transition-colors duration-200">Animal Perdido</a>
+      <a href="encontrados.html" class="hover:text-orange-300 transition-colors duration-200">Animal Encontrado</a>
+      <a href="sobre.html" class="hover:text-orange-300 transition-colors duration-200">Sobre</a>
+      <a href="perfil.html" class="hover:text-orange-300 transition-colors duration-200">Perfil</a>
+    </nav>
+      <!-- Navegação Desktop -->
+
+    <!-- Ações Usuário -->
+    <div class="hidden md:flex items-center space-x-4">
+      <!-- Notificações -->
+      <button aria-label="Notificações" class="relative group">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white hover:text-orange-300 transition" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6 6 0 10-12 0v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+        </svg>
+        <span class="absolute top-0 right-0 inline-block w-2 h-2 bg-red-600 rounded-full ring-2 ring-white"></span>
+      </button>
+
+<!-- Botão Cadastrar com Dropdown de Formulário -->
+<div class="relative group">
+  <button id="btn-login" class="bg-white text-orange-600 font-semibold px-3 py-1.5 rounded-full hover:bg-orange-100 focus:outline-none flex items-center space-x-1">
+    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-orange-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+    </svg>
+    <span id="login-text">Login</span>
+  </button>
+  <!-- Formulário Dropdown -->
+  <div id="login-form" class="absolute right-0 mt-2 w-64 bg-white text-gray-700 rounded-lg shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-20 p-4 space-y-3">
+    <h2 class="text-orange-600 font-bold text-sm">Login de Usuário</h2>
+    <form id="form-login" class="space-y-3">
+      <div>
+        <label for="email" class="block text-xs font-semibold">Email</label>
+        <input type="email" id="login-email" name="email" placeholder="email@exemplo.com" class="w-full px-3 py-1.5 border border-gray-300 rounded focus:ring-orange-400 focus:outline-none text-sm" required>
+      </div>
+      <div>
+        <label for="senha" class="block text-xs font-semibold">Senha</label>
+        <input type="password" id="login-senha" name="senha" placeholder="••••••••" class="w-full px-3 py-1.5 border border-gray-300 rounded focus:ring-orange-400 focus:outline-none text-sm" required>
+      </div>
+      <button type="submit" class="w-full bg-orange-500 text-white font-semibold py-1.5 rounded hover:bg-orange-600 transition">Entrar</button>
+      <p class="text-xs text-center">Não tem conta? <a href="#" id="toggle-register" class="text-orange-500 hover:underline">Cadastre-se</a></p>
+    </form>
+    
+    <form id="form-register" class="space-y-3 hidden">
+      <h2 class="text-orange-600 font-bold text-sm">Cadastro de Usuário</h2>
+      <div>
+        <label for="nome" class="block text-xs font-semibold">Nome</label>
+        <input type="text" id="register-nome" name="nome" placeholder="Seu nome" class="w-full px-3 py-1.5 border border-gray-300 rounded focus:ring-orange-400 focus:outline-none text-sm" required>
+      </div>
+      <div>
+        <label for="email" class="block text-xs font-semibold">Email</label>
+        <input type="email" id="register-email" name="email" placeholder="email@exemplo.com" class="w-full px-3 py-1.5 border border-gray-300 rounded focus:ring-orange-400 focus:outline-none text-sm" required>
+      </div>
+      <div>
+        <label for="senha" class="block text-xs font-semibold">Senha</label>
+        <input type="password" id="register-senha" name="senha" placeholder="••••••••" class="w-full px-3 py-1.5 border border-gray-300 rounded focus:ring-orange-400 focus:outline-none text-sm" required>
+      </div>
+      <button type="submit" class="w-full bg-orange-500 text-white font-semibold py-1.5 rounded hover:bg-orange-600 transition">Cadastrar</button>
+      <p class="text-xs text-center">Já tem conta? <a href="#" id="toggle-login" class="text-orange-500 hover:underline">Faça login</a></p>
+    </form>
+  </div>
+</div>
+
+    </div>
+
+    <!-- Botão Hambúrguer Mobile -->
+    <button id="btn-menu" class="md:hidden flex flex-col space-y-1.5 focus:outline-none" aria-label="Abrir menu">
+      <span class="block w-6 h-0.5 bg-white rounded transition-transform duration-300 origin-center"></span>
+      <span class="block w-6 h-0.5 bg-white rounded transition-opacity duration-300"></span>
+      <span class="block w-6 h-0.5 bg-white rounded transition-transform duration-300 origin-center"></span>
+    </button>
+  </div>
+
+  <!-- Menu Mobile -->
+  <nav id="menu-mobile" class="md:hidden bg-orange-600 text-white px-6 py-4 space-y-4 hidden">
+    <a href="index.html" class="block hover:text-orange-200 transition">Início</a>
+    <a href="cadastrar.html" class="block hover:text-orange-200 transition">Cadastrar Animal</a>
+    <a href="adotar.html" class="block hover:text-orange-200 transition">Adotar</a>
+    <a href="perdido.html" class="block hover:text-orange-200 transition">Animal Perdido</a>
+    <a href="encontrados.html" class="block hover:text-orange-200 transition">Animal Encontrado</a>
+    <a href="sobre.html" class="block hover:text-orange-200 transition">Sobre</a>
+    <a href="perfil.html" class="block hover:text-orange-200 transition">Perfil</a>
+  </nav>
+
+  <script>
+    const btnMenu = document.getElementById('btn-menu');
+    const menuMobile = document.getElementById('menu-mobile');
+    const spans = btnMenu.querySelectorAll('span');
+
+    btnMenu.addEventListener('click', () => {
+      menuMobile.classList.toggle('hidden');
+      // Animar o botão hambúrguer para X
+      spans[0].classList.toggle('rotate-45');
+      spans[0].classList.toggle('translate-y-1.5');
+      spans[1].classList.toggle('opacity-0');
+      spans[2].classList.toggle('-rotate-45');
+      spans[2].classList.toggle('-translate-y-1.5');
+    });
+
+    window.addEventListener('scroll', () => {
+      const header = document.getElementById('header');
+      header.classList.toggle('shadow-xl', window.scrollY > 10);
+    });
+  </script>
+</header>
+
+
+
+  <!-- Hero Section -->
+  <section id="inicio" class="relative bg-cover bg-center text-white h-[70vh] flex items-center justify-center" style="background-image: url('https://images.unsplash.com/photo-1558788353-f76d92427f16?auto=format&fit=crop&w=1400&q=80');">
+    <div class="absolute inset-0 bg-black bg-opacity-50"></div>
+    <div class="relative z-10 text-center px-4">
+      <h2 class="text-3xl md:text-5xl font-bold mb-4">Encontre, ajude ou adote um amigo peludo!</h2>
+      <p class="text-lg mb-6">Conectando animais e tutores por um futuro com mais amor e cuidado.</p>
+      <a href="perfil.html" class="bg-white text-orange-500 font-semibold py-2 px-6 rounded shadow hover:bg-orange-100 transition">Cadastrar Animal</a>
+    </div>
+  </section>
+
+  <!-- Funcionalidades -->
+  <section class="bg-white py-16">
+    <div class="max-w-6xl mx-auto px-4 text-center">
+      <h3 class="text-3xl font-bold mb-6">Como Funciona</h3>
+      <p class="text-gray-600 mb-12">Em poucos passos, você ajuda a transformar vidas.</p>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-10">
+        <div>
+          <div class="text-5xl text-orange-500 mb-4">📝</div>
+          <h4 class="text-xl font-semibold mb-2">Cadastre</h4>
+          <p class="text-gray-600">Informe dados e fotos do animal encontrado, perdido ou para adoção.</p>
+        </div>
+        <div>
+          <div class="text-5xl text-orange-500 mb-4">🔍</div>
+          <h4 class="text-xl font-semibold mb-2">Localize</h4>
+          <p class="text-gray-600">Encontre animais perto da sua localização ou filtre por cidade/estado.</p>
+        </div>
+        <div>
+          <div class="text-5xl text-orange-500 mb-4">🤝</div>
+          <h4 class="text-xl font-semibold mb-2">Conecte</h4>
+          <p class="text-gray-600">Fale com tutores ou ONGs de forma segura e facilitada.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+  
+
+  <!-- Animais Destaque - estilo Instagram -->
+<!-- Seção Animais em Destaque -->
+<section aria-labelledby="destaque-heading" class="py-16 bg-gray-50">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="text-center mb-12">
+      <h2 id="destaque-heading" class="text-3xl font-extrabold text-indigo-600 sm:text-4xl">
+        Animais para você conhecer
+      </h2>
+      <p class="mt-4 max-w-2xl mx-auto text-lg text-gray-600">
+        Conheça nossos peludos que estão ansiosos por um lar cheio de amor!
+      </p>
+    </div>
+
+    <div class="grid gap-8 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+      <!-- Card 1 -->
+      <article class="bg-white rounded-xl shadow-lg overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1 cursor-pointer">
+        <div class="relative">
+          <img src="https://www.marica.rj.gov.br/wp-content/uploads/2023/05/Clarildo-Menezes-scaled.jpg" 
+               alt="Cachorra Luna esperando por adoção" 
+               class="w-full h-56 object-cover">
+          <span class="absolute top-4 right-4 bg-indigo-100 text-indigo-800 text-xs font-semibold px-3 py-1 rounded-full">DESTAQUE</span>
+        </div>
+        <div class="p-5">
+          <div class="flex items-center justify-between">
+            <h3 class="text-xl font-bold text-gray-900">Luna <span aria-hidden="true">🐕</span></h3>
+            <span class="text-xs font-medium bg-blue-100 text-blue-800 px-2.5 py-0.5 rounded-full">Cachorro</span>
+          </div>
+          
+          <div class="mt-2 flex items-center text-sm text-gray-500">
+            <svg class="flex-shrink-0 mr-1.5 h-4 w-4 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+            </svg>
+            3 anos • SRD
+          </div>
+          
+          <p class="mt-3 text-gray-700">
+            Alegre e carinhosa, Luna está pronta para encontrar um novo lar. Adora brincar e receber carinho.
+          </p>
+          
+          <div class="mt-4 flex items-center text-sm text-gray-500">
+            <svg class="flex-shrink-0 mr-1.5 h-4 w-4 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+            </svg>
+            Abrigo Amigo dos Bichos
+          </div>
+        </div>
+      </article>
+
+      <!-- Card 2 -->
+      <article class="bg-white rounded-xl shadow-lg overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1 cursor-pointer">
+        <div class="relative">
+          <img src="https://static.vecteezy.com/system/resources/previews/011/834/839/large_2x/cute-stray-cat-relaxing-on-the-road-photo.jpg" 
+               alt="Gata Mimi esperando por adoção" 
+               class="w-full h-56 object-cover">
+          <span class="absolute top-4 right-4 bg-indigo-100 text-indigo-800 text-xs font-semibold px-3 py-1 rounded-full">DESTAQUE</span>
+        </div>
+        <div class="p-5">
+          <div class="flex items-center justify-between">
+            <h3 class="text-xl font-bold text-gray-900">Mimi <span aria-hidden="true">🐈</span></h3>
+            <span class="text-xs font-medium bg-purple-100 text-purple-800 px-2.5 py-0.5 rounded-full">Gata</span>
+          </div>
+          
+          <div class="mt-2 flex items-center text-sm text-gray-500">
+            <svg class="flex-shrink-0 mr-1.5 h-4 w-4 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+            </svg>
+            2 anos • Siamês
+          </div>
+          
+          <p class="mt-3 text-gray-700">
+            Doce e calma, Mimi adora carinho e ficar no colo. Ideal para quem busca uma companhia tranquila.
+          </p>
+          
+          <div class="mt-4 flex items-center text-sm text-gray-500">
+            <svg class="flex-shrink-0 mr-1.5 h-4 w-4 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+            </svg>
+            Lar Temporário Felino
+          </div>
+        </div>
+      </article>
+
+      <!-- Card 3 -->
+      <article class="bg-white rounded-xl shadow-lg overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1 cursor-pointer">
+        <div class="relative">
+          <img src="https://img.freepik.com/fotos-gratis/retrato-bonito-de-beagle_1385-388.jpg" 
+               alt="Cachorro Thor esperando por adoção" 
+               class="w-full h-56 object-cover">
+          <span class="absolute top-4 right-4 bg-indigo-100 text-indigo-800 text-xs font-semibold px-3 py-1 rounded-full">DESTAQUE</span>
+        </div>
+        <div class="p-5">
+          <div class="flex items-center justify-between">
+            <h3 class="text-xl font-bold text-gray-900">Thor <span aria-hidden="true">🐕</span></h3>
+            <span class="text-xs font-medium bg-blue-100 text-blue-800 px-2.5 py-0.5 rounded-full">Cachorro</span>
+          </div>
+          
+          <div class="mt-2 flex items-center text-sm text-gray-500">
+            <svg class="flex-shrink-0 mr-1.5 h-4 w-4 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+            </svg>
+            4 anos • Pastor Alemão
+          </div>
+          
+          <p class="mt-3 text-gray-700">
+            Protetor e fiel, Thor é ideal para famílias ativas. Adora exercícios e é muito inteligente.
+          </p>
+          
+          <div class="mt-4 flex items-center text-sm text-gray-500">
+            <svg class="flex-shrink-0 mr-1.5 h-4 w-4 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+            </svg>
+            Canil Municipal
+          </div>
+        </div>
+      </article>
+
+      <!-- Card 4 -->
+      <article class="bg-white rounded-xl shadow-lg overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1 cursor-pointer">
+        <div class="relative">
+          <img src="https://img.freepik.com/fotos-gratis/gatinho-fofinho-sentado-no-chao-ao-ar-livre_181624-49862.jpg" 
+               alt="Gata Nina esperando por adoção" 
+               class="w-full h-56 object-cover">
+          <span class="absolute top-4 right-4 bg-indigo-100 text-indigo-800 text-xs font-semibold px-3 py-1 rounded-full">DESTAQUE</span>
+        </div>
+        <div class="p-5">
+          <div class="flex items-center justify-between">
+            <h3 class="text-xl font-bold text-gray-900">Nina <span aria-hidden="true">🐈</span></h3>
+            <span class="text-xs font-medium bg-purple-100 text-purple-800 px-2.5 py-0.5 rounded-full">Gata</span>
+          </div>
+          
+          <div class="mt-2 flex items-center text-sm text-gray-500">
+            <svg class="flex-shrink-0 mr-1.5 h-4 w-4 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+            </svg>
+            1 ano • SRD
+          </div>
+          
+          <p class="mt-3 text-gray-700">
+            Curiosa e brincalhona, Nina é perfeita para quem quer uma companheira divertida e cheia de energia.
+          </p>
+          
+          <div class="mt-4 flex items-center text-sm text-gray-500">
+            <svg class="flex-shrink-0 mr-1.5 h-4 w-4 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+            </svg>
+            Gatil Esperança
+          </div>
+        </div>
+      </article>
+
+      <!-- Card 5 -->
+      <article class="bg-white rounded-xl shadow-lg overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1 cursor-pointer">
+        <div class="relative">
+          <img src="https://www.riodasostras.rj.gov.br/wp-content/uploads/2024/03/municipio-apoia-adocao-e-posse-responsavel-dos-animais-programa-de-saude-animal-cuida-de-quase-200-caes-e-gatos-que-estao-a-espera-de-um-lar-foto-allexandre-costa.jpeg" 
+               alt="Cachorro Bob esperando por adoção" 
+               class="w-full h-56 object-cover">
+          <span class="absolute top-4 right-4 bg-indigo-100 text-indigo-800 text-xs font-semibold px-3 py-1 rounded-full">DESTAQUE</span>
+        </div>
+        <div class="p-5">
+          <div class="flex items-center justify-between">
+            <h3 class="text-xl font-bold text-gray-900">Bob <span aria-hidden="true">🐕</span></h3>
+            <span class="text-xs font-medium bg-blue-100 text-blue-800 px-2.5 py-0.5 rounded-full">Cachorro</span>
+          </div>
+          
+          <div class="mt-2 flex items-center text-sm text-gray-500">
+            <svg class="flex-shrink-0 mr-1.5 h-4 w-4 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+            </svg>
+            5 anos • Labrador
+          </div>
+          
+          <p class="mt-3 text-gray-700">
+            Super brincalhão e ama água! Bob é ideal para quem busca um amigo energético e cheio de vitalidade.
+          </p>
+          
+          <div class="mt-4 flex items-center text-sm text-gray-500">
+            <svg class="flex-shrink-0 mr-1.5 h-4 w-4 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+            </svg>
+            Abrigo dos Amigos
+          </div>
+        </div>
+      </article>
+
+      <!-- Card 6 -->
+      <article class="bg-white rounded-xl shadow-lg overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1 cursor-pointer">
+        <div class="relative">
+          <img src="https://petapixel.com/assets/uploads/2022/11/Photographer-continues-to-photograph-cats-on-the-streets-proving-that-cats-really-are-the-kings-of-the-world-New-Pics-610a792fb91cf__880-800x800.jpeg" 
+               alt="Gata Mel esperando por adoção" 
+               class="w-full h-56 object-cover">
+          <span class="absolute top-4 right-4 bg-indigo-100 text-indigo-800 text-xs font-semibold px-3 py-1 rounded-full">DESTAQUE</span>
+        </div>
+        <div class="p-5">
+          <div class="flex items-center justify-between">
+            <h3 class="text-xl font-bold text-gray-900">Mel <span aria-hidden="true">🐈</span></h3>
+            <span class="text-xs font-medium bg-purple-100 text-purple-800 px-2.5 py-0.5 rounded-full">Gata</span>
+          </div>
+          
+          <div class="mt-2 flex items-center text-sm text-gray-500">
+            <svg class="flex-shrink-0 mr-1.5 h-4 w-4 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+            </svg>
+            6 meses • Persa
+          </div>
+          
+          <p class="mt-3 text-gray-700">
+            Filhote tranquila e amorosa, Mel é perfeita para quem procura companhia serena e extremamente fofa.
+          </p>
+          
+          <div class="mt-4 flex items-center text-sm text-gray-500">
+            <svg class="flex-shrink-0 mr-1.5 h-4 w-4 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+            </svg>
+            Lar Temporário Feliz
+          </div>
+        </div>
+      </article>
+
+      <!-- Card 7 -->
+      <article class="bg-white rounded-xl shadow-lg overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1 cursor-pointer">
+        <div class="relative">
+          <img src="https://img.freepik.com/fotos-gratis/alto-angulo-cachorrinho-em-pe-na-mao-do-proprietario_23-2148415217.jpg" 
+               alt="Cachorro Max esperando por adoção" 
+               class="w-full h-56 object-cover">
+          <span class="absolute top-4 right-4 bg-indigo-100 text-indigo-800 text-xs font-semibold px-3 py-1 rounded-full">DESTAQUE</span>
+        </div>
+        <div class="p-5">
+          <div class="flex items-center justify-between">
+            <h3 class="text-xl font-bold text-gray-900">Max <span aria-hidden="true">🐕</span></h3>
+            <span class="text-xs font-medium bg-blue-100 text-blue-800 px-2.5 py-0.5 rounded-full">Cachorro</span>
+          </div>
+          
+          <div class="mt-2 flex items-center text-sm text-gray-500">
+            <svg class="flex-shrink-0 mr-1.5 h-4 w-4 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+            </svg>
+            1 ano • Beagle
+          </div>
+          
+          <p class="mt-3 text-gray-700">
+            Adora passeios e cheiros novos. Max é sociável com outros cães e crianças, perfeito para famílias ativas.
+          </p>
+          
+          <div class="mt-4 flex items-center text-sm text-gray-500">
+            <svg class="flex-shrink-0 mr-1.5 h-4 w-4 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+            </svg>
+            Canil da Amizade
+          </div>
+        </div>
+      </article>
+
+      <!-- Card 8 -->
+      <article class="bg-white rounded-xl shadow-lg overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1 cursor-pointer">
+        <div class="relative">
+          <img src="https://images.unsplash.com/photo-1592194996308-7b43878e84a6" 
+               alt="Gata Tina esperando por adoção" 
+               class="w-full h-56 object-cover">
+          <span class="absolute top-4 right-4 bg-indigo-100 text-indigo-800 text-xs font-semibold px-3 py-1 rounded-full">DESTAQUE</span>
+        </div>
+        <div class="p-5">
+          <div class="flex items-center justify-between">
+            <h3 class="text-xl font-bold text-gray-900">Tina <span aria-hidden="true">🐈</span></h3>
+            <span class="text-xs font-medium bg-purple-100 text-purple-800 px-2.5 py-0.5 rounded-full">Gata</span>
+          </div>
+          
+          <div class="mt-2 flex items-center text-sm text-gray-500">
+            <svg class="flex-shrink-0 mr-1.5 h-4 w-4 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+            </svg>
+            3 anos • Angorá
+          </div>
+          
+          <p class="mt-3 text-gray-700">
+            Independente mas carinhosa, Tina ama um carinho na barriga. Está castrada, vacinada e pronta para adoção.
+          </p>
+          
+          <div class="mt-4 flex items-center text-sm text-gray-500">
+            <svg class="flex-shrink-0 mr-1.5 h-4 w-4 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+            </svg>
+            Gatil Esperança
+          </div>
+        </div>
+      </article>
+    </div>
+
+<div class="mt-12 text-center">
+  <a href="adotar.html">
+    <button class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors duration-200">
+      Ver mais animais
+      <svg class="ml-3 -mr-1 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+      </svg>
+    </button>
+  </a>
+</div>
+
+  </div>
+</section>
+
+  <!-- Sobre -->
+  <section id="sobre" class="py-16 bg-gray-50">
+    <div class="max-w-4xl mx-auto px-4 text-center">
+      <h3 class="text-3xl font-bold mb-4">Sobre o Amor e Patas</h3>
+      <p class="text-lg text-gray-700">
+        A Amor e Patas é uma plataforma colaborativa para apoiar tutores, ONGs e voluntários na missão de proteger e reencontrar animais. Acreditamos na tecnologia como ponte para o amor e o cuidado com os animais.
+      </p>
+    </div>
+  </section>
+
+  <!-- Chamada para Ação -->
+  <section class="bg-orange-500 text-white text-center py-16 px-4">
+    <h3 class="text-3xl font-bold mb-2">Junte-se a essa causa!</h3>
+    <p class="text-lg mb-6">Cadastre-se e ajude a transformar vidas — de humanos e animais.</p>
+    <a href="perfil.html" class="bg-white text-orange-500 font-semibold py-2 px-6 rounded shadow hover:bg-orange-100 transition">Inscrever-se no site</a>
+  </section>
+
+  <!-- Footer -->
+   
+<!-- Footer -->
+<footer class="bg-gray-900 text-gray-300 py-10">
+  <div class="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-4 gap-8">
+    
+    <!-- Sobre -->
+    <div>
+      <h4 class="text-xl font-semibold mb-4 text-white">Amor e Patas</h4>
+      <p class="text-gray-400 mb-4">
+        Conectando vidas e corações para um mundo melhor para nossos amigos peludos.
+      </p>
+    </div>
+
+    <!-- Redes Sociais -->
+    <div>
+      <h4 class="text-xl font-semibold mb-4 text-white">Siga-nos</h4>
+      <div class="flex space-x-6">
+        <a href="https://facebook.com/amorepatas" target="_blank" rel="noopener noreferrer" aria-label="Facebook" class="hover:text-orange-400">
+          <svg class="w-6 h-6 fill-current" viewBox="0 0 24 24" >
+            <path d="M22.675 0H1.325C.593 0 0 .593 0 1.326v21.348C0 23.407.593 24 1.325 24h11.495v-9.294H9.691v-3.622h3.129V8.413c0-3.1 1.894-4.788 4.659-4.788 1.325 0 2.466.099 2.798.143v3.24l-1.92.001c-1.504 0-1.795.715-1.795 1.763v2.313h3.587l-.467 3.622h-3.12V24h6.116c.73 0 1.324-.593 1.324-1.326V1.326C24 .593 23.407 0 22.675 0z"/>
+          </svg>
+        </a>
+        <a href="https://instagram.com/amorepatas" target="_blank" rel="noopener noreferrer" aria-label="Instagram" class="hover:text-orange-400">
+          <svg class="w-6 h-6 fill-current" viewBox="0 0 24 24" >
+            <path d="M7.75 2h8.5A5.75 5.75 0 0122 7.75v8.5A5.75 5.75 0 0116.25 22h-8.5A5.75 5.75 0 012 16.25v-8.5A5.75 5.75 0 017.75 2zm0 2A3.75 3.75 0 004 7.75v8.5A3.75 3.75 0 007.75 20h8.5a3.75 3.75 0 003.75-3.75v-8.5A3.75 3.75 0 0016.25 4h-8.5zm8.75 1a1 1 0 110 2 1 1 0 010-2zM12 7a5 5 0 110 10 5 5 0 010-10zm0 2a3 3 0 100 6 3 3 0 000-6z"/>
+          </svg>
+        </a>
+        <a href="https://twitter.com/amorepatas" target="_blank" rel="noopener noreferrer" aria-label="Twitter" class="hover:text-orange-400">
+          <svg class="w-6 h-6 fill-current" viewBox="0 0 24 24" >
+            <path d="M23 3a10.9 10.9 0 01-3.14.86A4.48 4.48 0 0022.4.36a9.09 9.09 0 01-2.88 1.1A4.52 4.52 0 0016.47 0c-2.49 0-4.5 2.03-4.5 4.53 0 .35.04.7.11 1.03A12.85 12.85 0 013 1.16a4.55 4.55 0 00-.61 2.28c0 1.57.79 2.96 1.99 3.78A4.5 4.5 0 012 6.6v.06a4.52 4.52 0 003.61 4.43 4.48 4.48 0 01-2.04.08 4.53 4.53 0 004.23 3.13A9.05 9.05 0 012 19.54 12.76 12.76 0 008.29 21c7.55 0 11.68-6.27 11.68-11.7 0-.18 0-.35-.01-.53A8.34 8.34 0 0023 3z"/>
+          </svg>
+        </a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+
+<script>
+  // Gerenciamento de usuários com localStorage
+  document.addEventListener('DOMContentLoaded', function() {
+    // Elementos do DOM
+    const btnLogin = document.getElementById('btn-login');
+    const loginText = document.getElementById('login-text');
+    const loginForm = document.getElementById('login-form');
+    const formLogin = document.getElementById('form-login');
+    const formRegister = document.getElementById('form-register');
+    const toggleRegister = document.getElementById('toggle-register');
+    const toggleLogin = document.getElementById('toggle-login');
+    
+    // Verificar se há usuário logado
+    const usuarioLogado = JSON.parse(localStorage.getItem('usuarioLogado'));
+    if (usuarioLogado) {
+      loginText.textContent = usuarioLogado.nome.split(' ')[0]; // Mostra apenas o primeiro nome
+      btnLogin.classList.add('logged-in'); // Adiciona classe para estilização
+    }
+    
+    // Alternar entre login e registro
+    toggleRegister.addEventListener('click', function(e) {
+      e.preventDefault();
+      formLogin.classList.add('hidden');
+      formRegister.classList.remove('hidden');
+    });
+    
+    toggleLogin.addEventListener('click', function(e) {
+      e.preventDefault();
+      formRegister.classList.add('hidden');
+      formLogin.classList.remove('hidden');
+    });
+    
+    // Formulário de Login
+    formLogin.addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      const email = document.getElementById('login-email').value;
+      const senha = document.getElementById('login-senha').value;
+      
+      // Verificar credenciais
+      const usuarios = JSON.parse(localStorage.getItem('usuarios')) || [];
+      const usuario = usuarios.find(u => u.email === email && u.senha === senha);
+      
+      if (usuario) {
+        // Login bem-sucedido
+        localStorage.setItem('usuarioLogado', JSON.stringify(usuario));
+        loginText.textContent = usuario.nome.split(' ')[0];
+        btnLogin.classList.add('logged-in');
+        loginForm.classList.remove('group-hover:visible', 'group-hover:opacity-100');
+        loginForm.classList.add('opacity-0', 'invisible');
+        
+        alert('Login realizado com sucesso!');
+      } else {
+        alert('Email ou senha incorretos!');
+      }
+    });
+    
+    // Formulário de Registro
+    formRegister.addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      const nome = document.getElementById('register-nome').value;
+      const email = document.getElementById('register-email').value;
+      const senha = document.getElementById('register-senha').value;
+      
+      // Verificar se usuário já existe
+      const usuarios = JSON.parse(localStorage.getItem('usuarios')) || [];
+      const usuarioExistente = usuarios.find(u => u.email === email);
+      
+      if (usuarioExistente) {
+        alert('Este email já está cadastrado!');
+        return;
+      }
+      
+      // Adicionar novo usuário
+      const novoUsuario = { nome, email, senha };
+      usuarios.push(novoUsuario);
+      localStorage.setItem('usuarios', JSON.stringify(usuarios));
+      
+      // Logar automaticamente
+      localStorage.setItem('usuarioLogado', JSON.stringify(novoUsuario));
+      loginText.textContent = novoUsuario.nome.split(' ')[0];
+      btnLogin.classList.add('logged-in');
+      formRegister.classList.add('hidden');
+      formLogin.classList.remove('hidden');
+      loginForm.classList.remove('group-hover:visible', 'group-hover:opacity-100');
+      loginForm.classList.add('opacity-0', 'invisible');
+      
+      alert('Cadastro realizado com sucesso! Você está logado.');
+    });
+    
+    // Logout (adicione este evento em algum botão de logout se necessário)
+    // btnLogout.addEventListener('click', function() {
+    //   localStorage.removeItem('usuarioLogado');
+    //   loginText.textContent = 'Login';
+    //   btnLogin.classList.remove('logged-in');
+    // });
+  });
+  const campoBusca = document.querySelector('input[type="search"]');
+  const sugestoes = document.getElementById('sugestoes-busca');
+
+  campoBusca.addEventListener('focus', () => {
+    sugestoes.classList.remove('hidden');
+  });
+
+  campoBusca.addEventListener('blur', () => {
+    // Oculta após um pequeno atraso para permitir clique
+    setTimeout(() => sugestoes.classList.add('hidden'), 200);
+  });
+
+  // Preenche o campo com o clique
+  sugestoes.querySelectorAll('li').forEach(item => {
+    item.addEventListener('click', () => {
+      campoBusca.value = item.textContent;
+      sugestoes.classList.add('hidden');
+    });
+  });
+</script>
+
+</body>
+</html>

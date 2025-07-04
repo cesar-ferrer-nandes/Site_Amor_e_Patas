@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Amor e Patas</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script
+  src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js">
+</script>
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+    }
+  </style>
+</head>
+
+<body class="bg-gray-50 text-gray-800">
+
+  <a href="https://wa.me/5599999999999" target="_blank" aria-label="Fale no WhatsApp"
+   class="fixed bottom-5 right-5 z-50 bg-green-500 hover:bg-green-600 text-white p-3 rounded-full shadow-lg transition transform hover:scale-110">
+  <!-- Ícone WhatsApp -->
+  <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+    <path d="M20.52 3.48A11.77 11.77 0 0 0 12 0C5.37 0 .01 5.36.01 11.99A11.83 11.83 0 0 0 3.36 20.8L.82 24l3.46-.9a11.92 11.92 0 0 0 5.29 1.27h.01c6.63 0 11.99-5.36 11.99-11.99a11.77 11.77 0 0 0-3.05-8.8zm-8.52 17.1c-1.66 0-3.29-.44-4.72-1.27l-.34-.2-2.05.54.54-2-.21-.33a9.86 9.86 0 0 1-1.52-5.29C3.7 6.56 7.46 2.8 12 2.8c2.46 0 4.77.96 6.5 2.69a9.2 9.2 0 0 1 2.69 6.5c0 5.04-4.1 9.14-9.14 9.14zm5.25-6.93c-.29-.15-1.7-.84-1.96-.93s-.46-.15-.65.14-.75.93-.91 1.12-.34.22-.62.07a7.53 7.53 0 0 1-2.22-1.37 8.41 8.41 0 0 1-1.56-1.94c-.16-.27-.02-.41.12-.56.12-.12.27-.3.4-.45.13-.15.17-.26.26-.43s.04-.33-.02-.48c-.07-.15-.65-1.56-.89-2.13-.23-.56-.47-.49-.65-.5s-.36-.02-.55-.02a1.07 1.07 0 0 0-.77.36c-.27.29-1 1-1 2.45s1.02 2.84 1.17 3.04c.15.2 2 3.07 4.83 4.3.67.29 1.2.46 1.61.59.68.22 1.3.19 1.79.12.55-.08 1.7-.7 1.94-1.37.24-.66.24-1.24.17-1.36s-.27-.21-.56-.35z"/>
+  </svg>
+</a>
+
+  <!-- Header -->
+<header class="bg-gradient-to-r from-orange-400 to-orange-600 text-white shadow-md sticky top-0 z-50 transition-shadow duration-300" id="header">
+  <div class="w-full px-6 py-4 flex items-center justify-between">
+    <!-- Logo + Título + Slogan -->
+    <div class="flex items-center space-x-3 cursor-pointer group">
+      <div class="text-3xl animate-pulse select-none">🐾</div>
+      <div>
+        <h1 class="font-extrabold text-2xl tracking-wide select-none">Amor e Patas</h1>
+        <p class="text-xs opacity-75 group-hover:opacity-100 transition-opacity select-none">Conectando vidas com amor</p>
+      </div>
+    </div>
+
+    <!-- Pesquisa Desktop -->
+    <div class="hidden md:flex items-center space-x-2 bg-white rounded-full px-3 py-1 text-gray-600 focus-within:ring-2 ring-orange-400 transition">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-orange-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M9 17a8 8 0 100-16 8 8 0 000 16z" />
+      </svg>
+      <input type="search" placeholder="Buscar animal..." class="outline-none text-sm text-gray-700" />
+    </div>
+
+    <!-- Navegação Desktop -->
+    <nav class="hidden md:flex space-x-8 font-medium text-sm">
+      <a href="index.html" class="hover:text-orange-300 transition-colors duration-200">Início</a>
+      <a href="cadastrar.html" class="hover:text-orange-300 transition-colors duration-200">Cadastrar Animal</a>
+      <a href="adotar.html" class="hover:text-orange-300 transition-colors duration-200">Adotar</a>
+      <a href="perdido.html" class="hover:text-orange-300 transition-colors duration-200">Animal Perdido</a>
+      <a href="encontrados.html" class="hover:text-orange-300 transition-colors duration-200">Animal Econtrado</a>
+      <a href="sobre.html" class="hover:text-orange-300 transition-colors duration-200">Sobre</a>
+      <a href="perfil.html" class="hover:text-orange-300 transition-colors duration-200">Perfil</a>
+    </nav>
+
+    <!-- Ações Usuário -->
+    <div class="hidden md:flex items-center space-x-4">
+      <!-- Notificações -->
+      <button aria-label="Notificações" class="relative group">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white hover:text-orange-300 transition" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6 6 0 10-12 0v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+        </svg>
+        <span class="absolute top-0 right-0 inline-block w-2 h-2 bg-red-600 rounded-full ring-2 ring-white"></span>
+      </button>
+
+      <!-- Perfil Usuário Dropdown -->
+      <div class="relative group">
+        <button class="flex items-center space-x-2 focus:outline-none">
+          <img src="https://i.pravatar.cc/32" alt="Avatar" class="rounded-full w-8 h-8 border-2 border-white" />
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-white group-hover:text-orange-300 transition" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+          </svg>
+        </button>
+        <div class="absolute right-0 mt-2 w-40 bg-white text-gray-700 rounded-md shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10">
+          <a href="perfil.html" class="block px-4 py-2 hover:bg-orange-100">Perfil</a>
+          <a href="logout.html" class="block px-4 py-2 hover:bg-orange-100">Sair</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Botão Hambúrguer Mobile -->
+    <button id="btn-menu" class="md:hidden flex flex-col space-y-1.5 focus:outline-none" aria-label="Abrir menu">
+      <span class="block w-6 h-0.5 bg-white rounded transition-transform duration-300 origin-center"></span>
+      <span class="block w-6 h-0.5 bg-white rounded transition-opacity duration-300"></span>
+      <span class="block w-6 h-0.5 bg-white rounded transition-transform duration-300 origin-center"></span>
+    </button>
+  </div>
+
+  <!-- Menu Mobile -->
+  <nav id="menu-mobile" class="md:hidden bg-orange-600 text-white px-6 py-4 space-y-4 hidden">
+    <a href="index.html" class="block hover:text-orange-200 transition">Início</a>
+    <a href="cadastrar.html" class="block hover:text-orange-200 transition">Cadastrar Animal</a>
+    <a href="adotar.html" class="block hover:text-orange-200 transition">Adotar</a>
+    <a href="sobre.html" class="block hover:text-orange-200 transition">Sobre</a>
+    <a href="perfil.html" class="block hover:text-orange-200 transition">Perfil</a>
+    <a href="perdido.html" class="block hover:text-orange-200 transition">Animal Perdido</a>
+    <a href="encontrados.html" class="block hover:text-orange-200 transition">Animal Econtrado</a>
+  </nav>
+
+  <script>
+    const btnMenu = document.getElementById('btn-menu');
+    const menuMobile = document.getElementById('menu-mobile');
+    const spans = btnMenu.querySelectorAll('span');
+
+    btnMenu.addEventListener('click', () => {
+      menuMobile.classList.toggle('hidden');
+      // Animar o botão hambúrguer para X
+      spans[0].classList.toggle('rotate-45');
+      spans[0].classList.toggle('translate-y-1.5');
+      spans[1].classList.toggle('opacity-0');
+      spans[2].classList.toggle('-rotate-45');
+      spans[2].classList.toggle('-translate-y-1.5');
+    });
+
+    window.addEventListener('scroll', () => {
+      const header = document.getElementById('header');
+      header.classList.toggle('shadow-xl', window.scrollY > 10);
+    });
+  </script>
+</header>
+
+   
+<!-- Footer -->
+<footer class="bg-gray-900 text-gray-300 py-10">
+  <div class="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-4 gap-8">
+    
+    <!-- Sobre -->
+    <div>
+      <h4 class="text-xl font-semibold mb-4 text-white">Amor e Patas</h4>
+      <p class="text-gray-400 mb-4">
+        Conectando vidas e corações para um mundo melhor para nossos amigos peludos.
+      </p>
+      <p class="text-sm">Contato:</p>
+      <p class="text-sm">📧 <a href="mailto:contato@amorepatas.com" class="hover:text-orange-400">contato@amorepatas.com</a></p>
+      <p class="text-sm">📞 <a href="tel:+5511999999999" class="hover:text-orange-400">(11) 99999-9999</a></p>
+    </div>
+
+    <!-- Links Rápidos -->
+    <div>
+      <h4 class="text-xl font-semibold mb-4 text-white">Links Rápidos</h4>
+      <ul class="space-y-2">
+        <li><a href="index.html" class="hover:text-orange-400">Início</a></li>
+        <li><a href="cadastrar.html" class="hover:text-orange-400">Cadastrar Animal</a></li>
+        <li><a href="adotar.html" class="hover:text-orange-400">Adotar</a></li>
+        <li><a href="sobre.html" class="hover:text-orange-400">Sobre</a></li>
+        <li><a href="login.html" class="hover:text-orange-400">Login</a></li>
+        <li><a href="perdido.html" class="hover:text-orange-400">Animal Perdido</a></li>
+        <li><a href="encontrados.html" class="hover:text-orange-400">Animal Econtrado</a></li>
+        
+      </ul>
+    </div>
+
+    <!-- Redes Sociais -->
+    <div>
+      <h4 class="text-xl font-semibold mb-4 text-white">Siga-nos</h4>
+      <div class="flex space-x-6">
+        <a href="https://facebook.com/amorepatas" target="_blank" rel="noopener noreferrer" aria-label="Facebook" class="hover:text-orange-400">
+          <svg class="w-6 h-6 fill-current" viewBox="0 0 24 24" >
+            <path d="M22.675 0H1.325C.593 0 0 .593 0 1.326v21.348C0 23.407.593 24 1.325 24h11.495v-9.294H9.691v-3.622h3.129V8.413c0-3.1 1.894-4.788 4.659-4.788 1.325 0 2.466.099 2.798.143v3.24l-1.92.001c-1.504 0-1.795.715-1.795 1.763v2.313h3.587l-.467 3.622h-3.12V24h6.116c.73 0 1.324-.593 1.324-1.326V1.326C24 .593 23.407 0 22.675 0z"/>
+          </svg>
+        </a>
+        <a href="https://instagram.com/amorepatas" target="_blank" rel="noopener noreferrer" aria-label="Instagram" class="hover:text-orange-400">
+          <svg class="w-6 h-6 fill-current" viewBox="0 0 24 24" >
+            <path d="M7.75 2h8.5A5.75 5.75 0 0122 7.75v8.5A5.75 5.75 0 0116.25 22h-8.5A5.75 5.75 0 012 16.25v-8.5A5.75 5.75 0 017.75 2zm0 2A3.75 3.75 0 004 7.75v8.5A3.75 3.75 0 007.75 20h8.5a3.75 3.75 0 003.75-3.75v-8.5A3.75 3.75 0 0016.25 4h-8.5zm8.75 1a1 1 0 110 2 1 1 0 010-2zM12 7a5 5 0 110 10 5 5 0 010-10zm0 2a3 3 0 100 6 3 3 0 000-6z"/>
+          </svg>
+        </a>
+        <a href="https://twitter.com/amorepatas" target="_blank" rel="noopener noreferrer" aria-label="Twitter" class="hover:text-orange-400">
+          <svg class="w-6 h-6 fill-current" viewBox="0 0 24 24" >
+            <path d="M23 3a10.9 10.9 0 01-3.14.86A4.48 4.48 0 0022.4.36a9.09 9.09 0 01-2.88 1.1A4.52 4.52 0 0016.47 0c-2.49 0-4.5 2.03-4.5 4.53 0 .35.04.7.11 1.03A12.85 12.85 0 013 1.16a4.55 4.55 0 00-.61 2.28c0 1.57.79 2.96 1.99 3.78A4.5 4.5 0 012 6.6v.06a4.52 4.52 0 003.61 4.43 4.48 4.48 0 01-2.04.08 4.53 4.53 0 004.23 3.13A9.05 9.05 0 012 19.54 12.76 12.76 0 008.29 21c7.55 0 11.68-6.27 11.68-11.7 0-.18 0-.35-.01-.53A8.34 8.34 0 0023 3z"/>
+          </svg>
+        </a>
+      </div>
+    </div>
+
+    <!-- Mapa -->
+    <div>
+      <h4 class="text-xl font-semibold mb-4 text-white">Nosso Local</h4>
+      <div class="w-full h-48 md:h-64 rounded-lg overflow-hidden shadow-lg">
+        <iframe
+          src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3656.4980724722975!2d-46.65657078441477!3d-23.588012568896993!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x94ce59d9b06c63f5%3A0x4f978b1d5a408168!2sAv.%20Paulista%2C%20S%C3%A3o%20Paulo%20-%20SP!5e0!3m2!1spt-BR!2sbr!4v1688320349475!5m2!1spt-BR!2sbr"
+          width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade">
+        </iframe>
+      </div>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

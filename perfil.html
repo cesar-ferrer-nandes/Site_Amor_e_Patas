@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Meu Perfil - Amor e Patas</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+    }
+    .logged-in {
+      background-color: #f97316;
+      color: white;
+    }
+  </style>
+</head>
+
+<body class="bg-gray-50 text-gray-800">
+  <!-- Header -->
+  <header class="bg-gradient-to-r from-orange-400 to-orange-600 text-white shadow-md sticky top-0 z-50 transition-shadow duration-300" id="header">
+    <div class="w-full px-6 py-4 flex items-center justify-between">
+        <!-- Logo + Título + Slogan com link para index.html -->
+        <a href="index.html" class="flex items-center space-x-1 cursor-pointer group">
+          <!-- Substituído o emoji por imagem -->
+          <img src="/imagem/Logo_2.png" alt="Logo Amor e Patas" class="w-20 h-20 object-contain" />
+          
+          <div>
+            <h1 class="font-extrabold text-2xl tracking-wide select-none">Amor e Patas</h1>
+            <p class="text-xs opacity-75 group-hover:opacity-100 transition-opacity select-none">
+              Conectando vidas com amor
+            </p>
+          </div>
+        </a>
+
+      <!-- Pesquisa Desktop -->
+      <div class="hidden md:flex items-center space-x-2 bg-white rounded-full px-3 py-1 text-gray-600 focus-within:ring-2 ring-orange-400 transition relative">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-orange-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M9 17a8 8 0 100-16 8 8 0 000 16z" />
+        </svg>
+        <input type="search" placeholder="Buscar animal..." class="outline-none text-sm text-gray-700" />
+        <ul id="sugestoes-busca" class="absolute top-10 left-0 w-full bg-white border border-gray-200 rounded-lg shadow-lg text-sm text-gray-700 hidden z-40">
+        <li class="px-4 py-2 hover:bg-orange-100 cursor-pointer">Rex (Labrador)</li>
+        <li class="px-4 py-2 hover:bg-orange-100 cursor-pointer">Luna (Gato Siamês)</li>
+        <li class="px-4 py-2 hover:bg-orange-100 cursor-pointer">Thor (Pitbull)</li>
+        <li class="px-4 py-2 hover:bg-orange-100 cursor-pointer">Mel (Poodle)</li>
+        </ul>
+      </div>
+      <!-- Pesquisa Desktop -->
+
+
+    <!-- Navegação Desktop -->
+    <nav class="hidden md:flex space-x-8 font-medium text-sm">
+      <a href="index.html" class="hover:text-orange-300 transition-colors duration-200">Início</a>
+      <a href="cadastrar.html" class="hover:text-orange-300 transition-colors duration-200">Cadastrar Animal</a>
+      <a href="adotar.html" class="hover:text-orange-300 transition-colors duration-200">Adotar</a>
+      <a href="perdido.html" class="hover:text-orange-300 transition-colors duration-200">Animal Perdido</a>
+      <a href="encontrados.html" class="hover:text-orange-300 transition-colors duration-200">Animal Encontrado</a>
+      <a href="sobre.html" class="hover:text-orange-300 transition-colors duration-200">Sobre</a>
+      <a href="perfil.html" class="hover:text-orange-300 transition-colors duration-200">Perfil</a>
+    </nav>
+      <!-- Navegação Desktop -->
+       
+      <!-- Ações Usuário -->
+      <div class="hidden md:flex items-center space-x-4">
+        <!-- Notificações -->
+        <button aria-label="Notificações" class="relative group">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white hover:text-orange-300 transition" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6 6 0 10-12 0v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+          </svg>
+          <span class="absolute top-0 right-0 inline-block w-2 h-2 bg-red-600 rounded-full ring-2 ring-white"></span>
+        </button>
+
+        <!-- Botão Login/Cadastro -->
+        <div class="relative group" id="login-container">
+          <button id="btn-login" class="bg-white text-orange-600 font-semibold px-3 py-1.5 rounded-full hover:bg-orange-100 focus:outline-none flex items-center space-x-1">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-orange-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+            </svg>
+            <span id="login-text">Login</span>
+          </button>
+          <!-- Formulário Dropdown -->
+          <div id="login-form" class="absolute right-0 mt-2 w-64 bg-white text-gray-700 rounded-lg shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-20 p-4 space-y-3">
+            <h2 class="text-orange-600 font-bold text-sm">Login de Usuário</h2>
+            <form id="form-login" class="space-y-3">
+              <div>
+                <label for="email" class="block text-xs font-semibold">Email</label>
+                <input type="email" id="login-email" name="email" placeholder="email@exemplo.com" class="w-full px-3 py-1.5 border border-gray-300 rounded focus:ring-orange-400 focus:outline-none text-sm" required>
+              </div>
+              <div>
+                <label for="senha" class="block text-xs font-semibold">Senha</label>
+                <input type="password" id="login-senha" name="senha" placeholder="••••••••" class="w-full px-3 py-1.5 border border-gray-300 rounded focus:ring-orange-400 focus:outline-none text-sm" required>
+              </div>
+              <button type="submit" class="w-full bg-orange-500 text-white font-semibold py-1.5 rounded hover:bg-orange-600 transition">Entrar</button>
+              <p class="text-xs text-center">Não tem conta? <a href="#" id="toggle-register" class="text-orange-500 hover:underline">Cadastre-se</a></p>
+            </form>
+            
+            <form id="form-register" class="space-y-3 hidden">
+              <h2 class="text-orange-600 font-bold text-sm">Cadastro de Usuário</h2>
+              <div>
+                <label for="nome" class="block text-xs font-semibold">Nome</label>
+                <input type="text" id="register-nome" name="nome" placeholder="Seu nome" class="w-full px-3 py-1.5 border border-gray-300 rounded focus:ring-orange-400 focus:outline-none text-sm" required>
+              </div>
+              <div>
+                <label for="email" class="block text-xs font-semibold">Email</label>
+                <input type="email" id="register-email" name="email" placeholder="email@exemplo.com" class="w-full px-3 py-1.5 border border-gray-300 rounded focus:ring-orange-400 focus:outline-none text-sm" required>
+              </div>
+              <div>
+                <label for="senha" class="block text-xs font-semibold">Senha</label>
+                <input type="password" id="register-senha" name="senha" placeholder="••••••••" class="w-full px-3 py-1.5 border border-gray-300 rounded focus:ring-orange-400 focus:outline-none text-sm" required>
+              </div>
+              <button type="submit" class="w-full bg-orange-500 text-white font-semibold py-1.5 rounded hover:bg-orange-600 transition">Cadastrar</button>
+              <p class="text-xs text-center">Já tem conta? <a href="#" id="toggle-login" class="text-orange-500 hover:underline">Faça login</a></p>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <!-- Botão Hambúrguer Mobile -->
+      <button id="btn-menu" class="md:hidden flex flex-col space-y-1.5 focus:outline-none" aria-label="Abrir menu">
+        <span class="block w-6 h-0.5 bg-white rounded transition-transform duration-300 origin-center"></span>
+        <span class="block w-6 h-0.5 bg-white rounded transition-opacity duration-300"></span>
+        <span class="block w-6 h-0.5 bg-white rounded transition-transform duration-300 origin-center"></span>
+      </button>
+    </div>
+
+  <!-- Menu Mobile -->
+  <nav id="menu-mobile" class="md:hidden bg-orange-600 text-white px-6 py-4 space-y-4 hidden">
+    <a href="index.html" class="block hover:text-orange-200 transition">Início</a>
+    <a href="cadastrar.html" class="block hover:text-orange-200 transition">Cadastrar Animal</a>
+    <a href="adotar.html" class="block hover:text-orange-200 transition">Adotar</a>
+    <a href="perdido.html" class="block hover:text-orange-200 transition">Animal Perdido</a>
+    <a href="encontrados.html" class="block hover:text-orange-200 transition">Animal Encontrado</a>
+    <a href="sobre.html" class="block hover:text-orange-200 transition">Sobre</a>
+    <a href="perfil.html" class="block hover:text-orange-200 transition">Perfil</a>
+  </nav>
+  </header>
+
+  <!-- Conteúdo Principal -->
+
+<main class="max-w-5xl mx-auto px-6 py-12" id="perfil-conteudo">
+  
+  <!-- Conteúdo para usuário logado (será mostrado dinamicamente) -->
+  <div id="perfil-logado" class="hidden">
+    <h2 class="text-4xl font-extrabold text-orange-600 mb-10 text-center">Meu Perfil</h2>
+    
+    <div class="bg-white rounded-2xl shadow-lg p-8 mb-12 flex flex-col md:flex-row items-center gap-8">
+      <div class="shrink-0">
+        <div id="avatar" class="w-36 h-36 rounded-full border-4 border-orange-500 shadow-md bg-orange-100 flex items-center justify-center text-5xl font-bold text-orange-600"></div>
+      </div>
+      <div class="text-center md:text-left">
+        <h3 id="nome-usuario" class="text-3xl font-bold text-gray-800"></h3>
+        <p id="email-usuario" class="text-gray-600 text-lg"></p>
+        <p class="text-sm text-gray-500 mt-1">Membro desde <strong id="data-cadastro"></strong></p>
+        <div class="mt-4 flex flex-wrap justify-center md:justify-start gap-3">
+          <a href="#editar-perfil" class="bg-orange-500 text-white px-5 py-2 rounded-md hover:bg-orange-600 transition font-medium">Editar Perfil</a>
+          <button id="btn-logout" class="bg-gray-200 text-gray-700 px-5 py-2 rounded-md hover:bg-gray-300 transition font-medium">Sair</button>
+        </div>
+      </div>
+    </div>
+    
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+      <div class="bg-orange-50 border-l-4 border-orange-500 p-5 rounded-xl shadow-sm">
+        <h4 class="text-lg font-bold text-orange-600">Animais Cadastrados</h4>
+        <p id="animais-cadastrados" class="text-gray-700 text-2xl mt-2 font-semibold">1</p>
+        <a href="#minhas-postagens" class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-orange-500 hover:bg-orange-600 transition">
+  Ver todos
+  <svg class="ml-2 w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+    <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/>
+  </svg>
+</a>
+      </div>
+      <div class="bg-orange-50 border-l-4 border-orange-500 p-5 rounded-xl shadow-sm">
+        <h4 class="text-lg font-bold text-orange-600">Adoções Realizadas</h4>
+        <p id="adocoes-realizadas" class="text-gray-700 text-2xl mt-2 font-semibold">0</p>
+        <a href="#adoções" class="text-sm text-orange-500 hover:underline mt-1 inline-block">Ver histórico</a>
+      </div>
+      <div class="bg-orange-50 border-l-4 border-orange-500 p-5 rounded-xl shadow-sm">
+        <h4 class="text-lg font-bold text-orange-600">Favoritos</h4>
+        <p id="favoritos" class="text-gray-700 text-2xl mt-2 font-semibold">0</p>
+        <a href="#favoritos" class="text-sm text-orange-500 hover:underline mt-1 inline-block">Ver lista</a>
+      </div>
+      <div class="bg-orange-50 border-l-4 border-orange-500 p-5 rounded-xl shadow-sm">
+        <h4 class="text-lg font-bold text-orange-600">Notificações</h4>
+        <p id="notificaçõesTexto" class="text-gray-700 text-2xl mt-2 font-semibold">3 nova</p>
+        <a href="#mensagens" class="text-sm text-orange-500 hover:underline mt-1 inline-block">Acessar notificações</a>
+      </div>
+    </div>
+    
+    <section class="bg-white rounded-xl shadow-md p-6">
+      <h4 class="text-2xl font-bold text-gray-800 mb-4">Atividades Recentes</h4>
+      <ul id="atividades-recentes" class="space-y-4 text-gray-700 text-sm">
+        <!-- Atividades serão adicionadas dinamicamente -->
+      </ul>
+    </section>
+  </div>
+
+<!--Forms para edição de perfil-->
+<section id="minhas-postagens" class="hidden max-w-6xl mx-auto px-6 py-12">
+  <h2 class="text-3xl font-bold text-orange-600 mb-10 text-center">🐾 Minhas Postagens</h2>
+
+
+
+
+
+  <div class="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+    <!-- Card de Postagem -->
+    <div class="bg-white shadow-xl rounded-2xl overflow-hidden hover:shadow-2xl transition duration-300 relative group">
+      <!-- Imagem do animal -->
+      <img src="https://www.portaldodog.com.br/wp-content/uploads/2018/02/cachorro-abandonado-por-ser-anao-recebe-todos-os-cuidados-e-e-um-animal-muito-alegre-pdd2.jpg" alt="Foto do animal" class="w-full h-52 object-cover">
+
+      <div class="p-5">
+        <!-- Nome -->
+        <h3 class="text-xl font-bold text-gray-800 group-hover:text-orange-600 transition">Rex</h3>
+
+        <!-- Informações -->
+        <ul class="text-sm text-gray-700 mt-3 space-y-1">
+          <li><strong>Raça:</strong> Labrador</li>
+          <li><strong>Idade:</strong> 3 anos</li>
+          <li><strong>Saúde:</strong> Vacinado e castrado</li>
+          <li><strong>Personalidade:</strong> Amigável, brincalhão, adora crianças</li>
+        </ul>
+
+        <!-- Ações -->
+        <div class="flex justify-between items-center mt-6">
+          <button class="flex items-center gap-2 px-4 py-1 text-sm bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition" onclick="editarPostagem(1)">
+            ✏️ Editar
+          </button>
+          <button class="flex items-center gap-2 px-4 py-1 text-sm bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition" onclick="excluirPostagem(1)">
+            🗑️ Excluir
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!--Forms para edição de perfil-->
+
+<!-- Conteúdo para usuário não logado -->
+<div id="perfil-nao-logado" class="hidden">
+
+  <!-- Formulário de Login/Cadastro estilizado -->
+  <div class="max-w-2xl mx-auto mt-12 bg-white shadow-2xl rounded-2xl p-10">
+    <div class="flex justify-center mb-8 space-x-6">
+      <button id="tab-login" class="px-6 py-3 text-lg font-semibold text-white bg-orange-500 rounded-lg hover:bg-orange-600 transition-all duration-200">Login</button>
+      <button id="tab-register" class="px-6 py-3 text-lg font-semibold text-orange-500 bg-orange-100 rounded-lg hover:bg-orange-200 transition-all duration-200">Cadastrar</button>
+    </div>
+
+    <!-- Formulário de Login -->
+    <form id="form-login-restrito" class="grid grid-cols-1 gap-6 md:grid-cols-2">
+      <div class="md:col-span-2">
+        <label class="block text-sm font-medium mb-1">Email</label>
+        <input type="email" id="login-email-restrito" class="w-full px-5 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-400 text-lg" required>
+      </div>
+      <div class="md:col-span-2">
+        <label class="block text-sm font-medium mb-1">Senha</label>
+        <input type="password" id="login-senha-restrito" class="w-full px-5 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-400 text-lg" required>
+      </div>
+      <div class="md:col-span-2">
+        <button type="submit" class="w-full py-3 bg-orange-500 text-white text-lg font-semibold rounded-lg hover:bg-orange-600 transition-all duration-200">Entrar</button>
+      </div>
+    </form>
+
+    <!-- Formulário de Cadastro -->
+    <form id="form-register-restrito" class="grid grid-cols-1 gap-6 md:grid-cols-2 hidden mt-8">
+      <div class="md:col-span-2">
+        <label class="block text-sm font-medium mb-1">Nome</label>
+        <input type="text" id="register-nome-restrito" class="w-full px-5 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-400 text-lg" required>
+      </div>
+      <div>
+        <label class="block text-sm font-medium mb-1">Email</label>
+        <input type="email" id="register-email-restrito" class="w-full px-5 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-400 text-lg" required>
+      </div>
+      <div>
+        <label class="block text-sm font-medium mb-1">Senha</label>
+        <input type="password" id="register-senha-restrito" class="w-full px-5 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-400 text-lg" required>
+      </div>
+      <div class="md:col-span-2">
+        <button type="submit" class="w-full py-3 bg-orange-500 text-white text-lg font-semibold rounded-lg hover:bg-orange-600 transition-all duration-200">Cadastrar</button>
+      </div>
+    </form>
+  </div>
+
+</div>
+
+
+<!-- Estado de carregamento -->
+<div id="perfil-carregando" class="text-center py-20">
+  <p class="text-gray-500">Carregando informações do perfil...</p>
+</div>
+</main>
+
+<!-- Conteúdo Principal -->
+
+  <!-- Footer -->
+  <footer class="bg-gray-900 text-gray-300 py-10">
+    <div class="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-4 gap-8">
+      <!-- Sobre -->
+      <div>
+        <h4 class="text-xl font-semibold mb-4 text-white">Amor e Patas</h4>
+        <p class="text-gray-400 mb-4">
+          Conectando vidas e corações para um mundo melhor para nossos amigos peludos.
+        </p>
+      </div>
+
+      <!-- Redes Sociais -->
+      <div>
+        <h4 class="text-xl font-semibold mb-4 text-white">Siga-nos</h4>
+        <div class="flex space-x-6">
+          <a href="https://facebook.com/amorepatas" target="_blank" rel="noopener noreferrer" aria-label="Facebook" class="hover:text-orange-400">
+            <svg class="w-6 h-6 fill-current" viewBox="0 0 24 24" >
+              <path d="M22.675 0H1.325C.593 0 0 .593 0 1.326v21.348C0 23.407.593 24 1.325 24h11.495v-9.294H9.691v-3.622h3.129V8.413c0-3.1 1.894-4.788 4.659-4.788 1.325 0 2.466.099 2.798.143v3.24l-1.92.001c-1.504 0-1.795.715-1.795 1.763v2.313h3.587l-.467 3.622h-3.12V24h6.116c.73 0 1.324-.593 1.324-1.326V1.326C24 .593 23.407 0 22.675 0z"/>
+            </svg>
+          </a>
+          <a href="https://instagram.com/amorepatas" target="_blank" rel="noopener noreferrer" aria-label="Instagram" class="hover:text-orange-400">
+            <svg class="w-6 h-6 fill-current" viewBox="0 0 24 24" >
+              <path d="M7.75 2h8.5A5.75 5.75 0 0122 7.75v8.5A5.75 5.75 0 0116.25 22h-8.5A5.75 5.75 0 012 16.25v-8.5A5.75 5.75 0 017.75 2zm0 2A3.75 3.75 0 004 7.75v8.5A3.75 3.75 0 007.75 20h8.5a3.75 3.75 0 003.75-3.75v-8.5A3.75 3.75 0 0016.25 4h-8.5zm8.75 1a1 1 0 110 2 1 1 0 010-2zM12 7a5 5 0 110 10 5 5 0 010-10zm0 2a3 3 0 100 6 3 3 0 000-6z"/>
+            </svg>
+          </a>
+          <a href="https://twitter.com/amorepatas" target="_blank" rel="noopener noreferrer" aria-label="Twitter" class="hover:text-orange-400">
+            <svg class="w-6 h-6 fill-current" viewBox="0 0 24 24" >
+              <path d="M23 3a10.9 10.9 0 01-3.14.86A4.48 4.48 0 0022.4.36a9.09 9.09 0 01-2.88 1.1A4.52 4.52 0 0016.47 0c-2.49 0-4.5 2.03-4.5 4.53 0 .35.04.7.11 1.03A12.85 12.85 0 013 1.16a4.55 4.55 0 00-.61 2.28c0 1.57.79 2.96 1.99 3.78A4.5 4.5 0 012 6.6v.06a4.52 4.52 0 003.61 4.43 4.48 4.48 0 01-2.04.08 4.53 4.53 0 004.23 3.13A9.05 9.05 0 012 19.54 12.76 12.76 0 008.29 21c7.55 0 11.68-6.27 11.68-11.7 0-.18 0-.35-.01-.53A8.34 8.34 0 0023 3z"/>
+            </svg>
+          </a>
+        </div>
+      </div>
+    </div>
+  </footer>
+  <!-- Footer -->
+
+ <script>
+  // Elementos do DOM
+  const perfilConteudo = document.getElementById('perfil-conteudo');
+  const perfilLogado = document.getElementById('perfil-logado');
+  const perfilNaoLogado = document.getElementById('perfil-nao-logado');
+  const perfilCarregando = document.getElementById('perfil-carregando');
+
+  // Verificar se o usuário está logado
+  const usuarioLogado = JSON.parse(localStorage.getItem('usuarioLogado'));
+
+  // Esconder estado de carregamento
+  perfilCarregando.classList.add('hidden');
+
+  if (usuarioLogado) {
+    const loginText = document.getElementById('login-text');
+    const btnLogin = document.getElementById('btn-login');
+    loginText.textContent = usuarioLogado.nome.split(' ')[0];
+    btnLogin.classList.add('logged-in');
+
+    // Preencher dados do perfil
+    document.getElementById('avatar').textContent = usuarioLogado.nome.charAt(0).toUpperCase();
+    document.getElementById('nome-usuario').textContent = usuarioLogado.nome;
+    document.getElementById('email-usuario').textContent = usuarioLogado.email;
+    document.getElementById('data-cadastro').textContent = new Date().toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
+
+    // Atividades
+    const atividades = [
+      `✅ Você se cadastrou no Amor e Patas em ${new Date().toLocaleDateString('pt-BR')}`,
+      '⭐ Explore os animais disponíveis para adoção!',
+      '🐾 Cadastre seu primeiro animal para começar.'
+    ];
+    const atividadesLista = document.getElementById('atividades-recentes');
+    atividades.forEach(a => {
+      const li = document.createElement('li');
+      li.textContent = a;
+      atividadesLista.appendChild(li);
+    });
+
+    perfilLogado.classList.remove('hidden');
+    document.getElementById('minhas-postagens').classList.remove('hidden');
+  } else {
+    perfilNaoLogado.classList.remove('hidden');
+    document.getElementById('minhas-postagens').classList.add('hidden');
+  }
+
+  // Logout
+  const btnLogout = document.getElementById('btn-logout');
+  if (btnLogout) {
+    btnLogout.addEventListener('click', () => {
+      localStorage.removeItem('usuarioLogado');
+      location.href = 'index.html';
+    });
+  }
+
+  // Menu mobile
+  const btnMenu = document.getElementById('btn-menu');
+  const menuMobile = document.getElementById('menu-mobile');
+  const spans = btnMenu.querySelectorAll('span');
+  btnMenu.addEventListener('click', () => {
+    menuMobile.classList.toggle('hidden');
+    spans[0].classList.toggle('rotate-45');
+    spans[0].classList.toggle('translate-y-1.5');
+    spans[1].classList.toggle('opacity-0');
+    spans[2].classList.toggle('-rotate-45');
+    spans[2].classList.toggle('-translate-y-1.5');
+  });
+
+  // Scroll header
+  window.addEventListener('scroll', () => {
+    document.getElementById('header').classList.toggle('shadow-xl', window.scrollY > 10);
+  });
+
+  // Notificações
+  const btnNotificacoes = document.querySelector('button[aria-label="Notificações"]');
+  const notificacoesContainer = document.createElement('div');
+  notificacoesContainer.id = 'notificacoes-dropdown';
+  notificacoesContainer.className = 'absolute right-0 mt-3 w-80 bg-white rounded-lg shadow-xl z-50 border border-orange-100 transform origin-top-right transition-all duration-200 ease-out scale-95 opacity-0 hidden';
+  notificacoesContainer.style.transform = 'translateY(205px)';
+  notificacoesContainer.innerHTML = `
+    <div class="p-3 border-b border-orange-100 bg-orange-50 rounded-t-lg">
+      <h3 class="font-semibold text-orange-700 flex items-center">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+          <path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z" />
+        </svg> Notificações
+      </h3>
+    </div>
+    <div id="notificacoes-lista" class="max-h-80 overflow-y-auto"></div>
+    <div class="p-2 text-center text-xs text-orange-500 border-t border-orange-100 bg-orange-50 rounded-b-lg">
+      <button id="marcar-todas-lidas" class="hover:underline">Marcar todas como lidas</button>
+    </div>`;
+  btnNotificacoes.parentNode.insertBefore(notificacoesContainer, btnNotificacoes.nextSibling);
+
+  const notificacoes = [
+    { id: 1, mensagem: "Novo animal disponível: Rex (Labrador)", tipo: "animal", lida: false, data: "10 min atrás" },
+    { id: 2, mensagem: "Seu processo de adoção foi aprovado!", tipo: "adocao", lida: false, data: "1 hora atrás" },
+    { id: 3, mensagem: "Luna (Gato) foi adotado com sucesso!", tipo: "sucesso", lida: false, data: "Ontem" }
+  ];
+
+  function renderNotificacoes() {
+    const lista = document.getElementById('notificacoes-lista');
+    lista.innerHTML = notificacoes.map(not => {
+      const config = {
+        animal: { cor: 'text-orange-600', emoji: '🐾' },
+        adocao: { cor: 'text-orange-600', emoji: '🏠' },
+        sucesso: { cor: 'text-orange-600', emoji: '🎉' }
+      };
+      return `
+        <div class="p-3 border-b border-gray-100 hover:bg-orange-50 cursor-pointer ${not.lida ? '' : 'bg-orange-50'}" data-id="${not.id}">
+          <div class="flex items-start">
+            <span class="mt-1 mr-2">${config[not.tipo].emoji}</span>
+            <div>
+              <p class="text-sm ${config[not.tipo].cor} font-medium">${not.mensagem}</p>
+              <p class="text-xs text-gray-500 mt-1">${not.data}</p>
+            </div>
+          </div>
+        </div>`;
+    }).join('');
+    const naoLidas = notificacoes.filter(n => !n.lida).length;
+    const badge = btnNotificacoes.querySelector('span');
+    badge.style.display = naoLidas > 0 ? 'block' : 'none';
+  }
+
+  btnNotificacoes.addEventListener('click', function (e) {
+    e.stopPropagation();
+    const isHidden = notificacoesContainer.classList.contains('hidden');
+    if (isHidden) {
+      notificacoesContainer.classList.remove('hidden');
+      setTimeout(() => {
+        notificacoesContainer.classList.remove('scale-95', 'opacity-0');
+        notificacoesContainer.classList.add('scale-100', 'opacity-100');
+      }, 10);
+    } else {
+      notificacoesContainer.classList.add('scale-95', 'opacity-0');
+      setTimeout(() => notificacoesContainer.classList.add('hidden'), 200);
+    }
+    renderNotificacoes();
+  });
+
+  document.addEventListener('click', () => {
+    notificacoesContainer.classList.add('scale-95', 'opacity-0');
+    setTimeout(() => notificacoesContainer.classList.add('hidden'), 200);
+  });
+
+  document.addEventListener('click', function (e) {
+    const item = e.target.closest('[data-id]');
+    if (item) {
+      const id = parseInt(item.getAttribute('data-id'));
+      const not = notificacoes.find(n => n.id === id);
+      if (not) {
+        not.lida = true;
+        renderNotificacoes();
+      }
+    }
+  });
+
+  document.getElementById('marcar-todas-lidas').addEventListener('click', function (e) {
+    e.stopPropagation();
+    notificacoes.forEach(n => n.lida = true);
+    renderNotificacoes();
+  });
+
+  // Editar e excluir postagem
+  function editarPostagem(id) {
+    alert(`Editar postagem com ID: ${id}`);
+  }
+
+  function excluirPostagem(id) {
+    if (confirm("Tem certeza que deseja excluir esta postagem?")) {
+      alert(`Postagem com ID ${id} excluída!`);
+    }
+  }
+
+  // Alternância entre abas login/cadastro
+  const tabLogin = document.getElementById('tab-login');
+  const tabRegister = document.getElementById('tab-register');
+  const formLogin = document.getElementById('form-login-restrito');
+  const formRegister = document.getElementById('form-register-restrito');
+
+  tabLogin.addEventListener('click', () => {
+    formLogin.classList.remove('hidden');
+    formRegister.classList.add('hidden');
+    tabLogin.classList.add('bg-orange-500', 'text-white');
+    tabLogin.classList.remove('bg-orange-100', 'text-orange-500');
+    tabRegister.classList.remove('bg-orange-500', 'text-white');
+    tabRegister.classList.add('bg-orange-100', 'text-orange-500');
+  });
+
+  tabRegister.addEventListener('click', () => {
+    formLogin.classList.add('hidden');
+    formRegister.classList.remove('hidden');
+    tabRegister.classList.add('bg-orange-500', 'text-white');
+    tabRegister.classList.remove('bg-orange-100', 'text-orange-500');
+    tabLogin.classList.remove('bg-orange-500', 'text-white');
+    tabLogin.classList.add('bg-orange-100', 'text-orange-500');
+  });
+
+  // Login funcional
+  formLogin.addEventListener('submit', function (e) {
+    e.preventDefault();
+    const email = document.getElementById('login-email-restrito').value;
+    const senha = document.getElementById('login-senha-restrito').value;
+    const usuarios = JSON.parse(localStorage.getItem('usuariosCadastrados')) || [];
+    const usuario = usuarios.find(u => u.email === email && u.senha === senha);
+    if (usuario) {
+      localStorage.setItem('usuarioLogado', JSON.stringify(usuario));
+      location.reload();
+    } else {
+      alert('Email ou senha incorretos.');
+    }
+  });
+
+  // Cadastro funcional
+  formRegister.addEventListener('submit', function (e) {
+    e.preventDefault();
+    const nome = document.getElementById('register-nome-restrito').value;
+    const email = document.getElementById('register-email-restrito').value;
+    const senha = document.getElementById('register-senha-restrito').value;
+
+    const usuarios = JSON.parse(localStorage.getItem('usuariosCadastrados')) || [];
+    if (usuarios.some(u => u.email === email)) {
+      alert('Este e-mail já está cadastrado.');
+      return;
+    }
+
+    const novoUsuario = { nome, email, senha };
+    usuarios.push(novoUsuario);
+    localStorage.setItem('usuariosCadastrados', JSON.stringify(usuarios));
+    localStorage.setItem('usuarioLogado', JSON.stringify(novoUsuario));
+    location.reload();
+  });
+    const campoBusca = document.querySelector('input[type="search"]');
+  const sugestoes = document.getElementById('sugestoes-busca');
+
+  campoBusca.addEventListener('focus', () => {
+    sugestoes.classList.remove('hidden');
+  });
+
+  campoBusca.addEventListener('blur', () => {
+    // Oculta após um pequeno atraso para permitir clique
+    setTimeout(() => sugestoes.classList.add('hidden'), 200);
+  });
+
+  // Preenche o campo com o clique
+  sugestoes.querySelectorAll('li').forEach(item => {
+    item.addEventListener('click', () => {
+      campoBusca.value = item.textContent;
+      sugestoes.classList.add('hidden');
+    });
+  });
+</script>
+
+
+</body>
+
+</html>

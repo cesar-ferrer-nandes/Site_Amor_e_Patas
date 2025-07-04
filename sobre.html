@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Amor e Patas</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script
+  src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js">
+</script>
+    <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+    }
+    .logged-in {
+      background-color: #f97316;
+      color: white;
+    }
+</style>
+</head>
+
+<body class="bg-gray-50 text-gray-800">
+  <!-- Header -->
+<header class="bg-gradient-to-r from-orange-400 to-orange-600 text-white shadow-md sticky top-0 z-50 transition-shadow duration-300" id="header">
+  <div class="w-full px-6 py-4 flex items-center justify-between">
+        <!-- Logo + Título + Slogan com link para index.html -->
+        <a href="index.html" class="flex items-center space-x-1 cursor-pointer group">
+          <!-- Substituído o emoji por imagem -->
+          <img src="/imagem/Logo_2.png" alt="Logo Amor e Patas" class="w-20 h-20 object-contain" />
+          
+          <div>
+            <h1 class="font-extrabold text-2xl tracking-wide select-none">Amor e Patas</h1>
+            <p class="text-xs opacity-75 group-hover:opacity-100 transition-opacity select-none">
+              Conectando vidas com amor
+            </p>
+          </div>
+        </a>
+
+      <!-- Pesquisa Desktop -->
+      <div class="hidden md:flex items-center space-x-2 bg-white rounded-full px-3 py-1 text-gray-600 focus-within:ring-2 ring-orange-400 transition relative">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-orange-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M9 17a8 8 0 100-16 8 8 0 000 16z" />
+        </svg>
+        <input type="search" placeholder="Buscar animal..." class="outline-none text-sm text-gray-700" />
+        <ul id="sugestoes-busca" class="absolute top-10 left-0 w-full bg-white border border-gray-200 rounded-lg shadow-lg text-sm text-gray-700 hidden z-40">
+        <li class="px-4 py-2 hover:bg-orange-100 cursor-pointer">Rex (Labrador)</li>
+        <li class="px-4 py-2 hover:bg-orange-100 cursor-pointer">Luna (Gato Siamês)</li>
+        <li class="px-4 py-2 hover:bg-orange-100 cursor-pointer">Thor (Pitbull)</li>
+        <li class="px-4 py-2 hover:bg-orange-100 cursor-pointer">Mel (Poodle)</li>
+        </ul>
+      </div>
+      <!-- Pesquisa Desktop -->
+
+
+    <!-- Navegação Desktop -->
+    <nav class="hidden md:flex space-x-8 font-medium text-sm">
+      <a href="index.html" class="hover:text-orange-300 transition-colors duration-200">Início</a>
+      <a href="cadastrar.html" class="hover:text-orange-300 transition-colors duration-200">Cadastrar Animal</a>
+      <a href="adotar.html" class="hover:text-orange-300 transition-colors duration-200">Adotar</a>
+      <a href="perdido.html" class="hover:text-orange-300 transition-colors duration-200">Animal Perdido</a>
+      <a href="encontrados.html" class="hover:text-orange-300 transition-colors duration-200">Animal Encontrado</a>
+      <a href="sobre.html" class="hover:text-orange-300 transition-colors duration-200">Sobre</a>
+      <a href="perfil.html" class="hover:text-orange-300 transition-colors duration-200">Perfil</a>
+    </nav>
+      <!-- Navegação Desktop -->
+
+    <!-- Ações Usuário -->
+<div class="hidden md:flex items-center space-x-4">
+  <!-- Notificações -->
+  <button aria-label="Notificações" class="relative group">
+    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white hover:text-orange-300 transition" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6 6 0 10-12 0v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+    </svg>
+    <span class="absolute top-0 right-0 inline-block w-2 h-2 bg-red-600 rounded-full ring-2 ring-white"></span>
+  </button>
+
+  <!-- Botão Login/Cadastro -->
+  <div class="relative group" id="login-container">
+    <button id="btn-login" class="bg-white text-orange-600 font-semibold px-3 py-1.5 rounded-full hover:bg-orange-100 focus:outline-none flex items-center space-x-1">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-orange-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+      </svg>
+      <span id="login-text">Login</span>
+    </button>
+    <!-- Formulário Dropdown -->
+    <div id="login-form" class="absolute right-0 mt-2 w-64 bg-white text-gray-700 rounded-lg shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-20 p-4 space-y-3">
+      <h2 class="text-orange-600 font-bold text-sm">Login de Usuário</h2>
+      <form id="form-login" class="space-y-3">
+        <div>
+          <label for="email" class="block text-xs font-semibold">Email</label>
+          <input type="email" id="login-email" name="email" placeholder="email@exemplo.com" class="w-full px-3 py-1.5 border border-gray-300 rounded focus:ring-orange-400 focus:outline-none text-sm" required>
+        </div>
+        <div>
+          <label for="senha" class="block text-xs font-semibold">Senha</label>
+          <input type="password" id="login-senha" name="senha" placeholder="••••••••" class="w-full px-3 py-1.5 border border-gray-300 rounded focus:ring-orange-400 focus:outline-none text-sm" required>
+        </div>
+        <button type="submit" class="w-full bg-orange-500 text-white font-semibold py-1.5 rounded hover:bg-orange-600 transition">Entrar</button>
+        <p class="text-xs text-center">Não tem conta? <a href="#" id="toggle-register" class="text-orange-500 hover:underline">Cadastre-se</a></p>
+      </form>
+      
+      <form id="form-register" class="space-y-3 hidden">
+        <h2 class="text-orange-600 font-bold text-sm">Cadastro de Usuário</h2>
+        <div>
+          <label for="nome" class="block text-xs font-semibold">Nome</label>
+          <input type="text" id="register-nome" name="nome" placeholder="Seu nome" class="w-full px-3 py-1.5 border border-gray-300 rounded focus:ring-orange-400 focus:outline-none text-sm" required>
+        </div>
+        <div>
+          <label for="email" class="block text-xs font-semibold">Email</label>
+          <input type="email" id="register-email" name="email" placeholder="email@exemplo.com" class="w-full px-3 py-1.5 border border-gray-300 rounded focus:ring-orange-400 focus:outline-none text-sm" required>
+        </div>
+        <div>
+          <label for="senha" class="block text-xs font-semibold">Senha</label>
+          <input type="password" id="register-senha" name="senha" placeholder="••••••••" class="w-full px-3 py-1.5 border border-gray-300 rounded focus:ring-orange-400 focus:outline-none text-sm" required>
+        </div>
+        <button type="submit" class="w-full bg-orange-500 text-white font-semibold py-1.5 rounded hover:bg-orange-600 transition">Cadastrar</button>
+        <p class="text-xs text-center">Já tem conta? <a href="#" id="toggle-login" class="text-orange-500 hover:underline">Faça login</a></p>
+      </form>
+    </div>
+  </div>
+</div>
+
+    <!-- Botão Hambúrguer Mobile -->
+    <button id="btn-menu" class="md:hidden flex flex-col space-y-1.5 focus:outline-none" aria-label="Abrir menu">
+      <span class="block w-6 h-0.5 bg-white rounded transition-transform duration-300 origin-center"></span>
+      <span class="block w-6 h-0.5 bg-white rounded transition-opacity duration-300"></span>
+      <span class="block w-6 h-0.5 bg-white rounded transition-transform duration-300 origin-center"></span>
+    </button>
+  </div>
+
+  <!-- Menu Mobile -->
+  <nav id="menu-mobile" class="md:hidden bg-orange-600 text-white px-6 py-4 space-y-4 hidden">
+    <a href="index.html" class="block hover:text-orange-200 transition">Início</a>
+    <a href="cadastrar.html" class="block hover:text-orange-200 transition">Cadastrar Animal</a>
+    <a href="adotar.html" class="block hover:text-orange-200 transition">Adotar</a>
+    <a href="perdido.html" class="block hover:text-orange-200 transition">Animal Perdido</a>
+    <a href="encontrados.html" class="block hover:text-orange-200 transition">Animal Encontrado</a>
+    <a href="sobre.html" class="block hover:text-orange-200 transition">Sobre</a>
+    <a href="perfil.html" class="block hover:text-orange-200 transition">Perfil</a>
+  </nav>
+
+</header>
+
+
+
+<!-- Página Sobre - Amor e Patas -->
+<main class="relative overflow-hidden">
+  <!-- Fundo decorativo -->
+  <div class="absolute inset-0 z-0">
+    <div class="absolute top-0 left-0 w-full h-1/3 bg-gradient-to-b from-orange-50 to-transparent"></div>
+    <div class="absolute bottom-0 right-0 w-64 h-64 rounded-full bg-orange-100 opacity-20 blur-3xl transform translate-x-1/2 translate-y-1/2"></div>
+  </div>
+
+  <section class="max-w-6xl mx-auto px-6 py-16 md:py-24 relative z-10" id="sobre">
+    <!-- Cabeçalho com ilustração -->
+    <div class="flex flex-col items-center mb-12">
+      <div class="relative mb-6">
+        <svg class="w-24 h-24 text-orange-500" fill="currentColor" viewBox="0 0 24 24">
+          <path d="M12 4.5C15 4.5 18 6 18 9.5C18 12 16 15 12 18.5C8 15 6 12 6 9.5C6 6 9 4.5 12 4.5ZM12 2C7 2 3 5 3 9.5C3 14 7 19 12 22C17 19 21 14 21 9.5C21 5 17 2 12 2ZM12 8C10.9 8 10 8.9 10 10C10 11.1 10.9 12 12 12C13.1 12 14 11.1 14 10C14 8.9 13.1 8 12 8ZM8 10C8 7.8 9.8 6 12 6C14.2 6 16 7.8 16 10C16 12.2 14.2 14 12 14C9.8 14 8 12.2 8 10Z"/>
+        </svg>
+        <div class="absolute -bottom-2 -right-2 bg-orange-100 text-orange-600 rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold">♥</div>
+      </div>
+      <h2 class="text-4xl md:text-5xl font-bold text-center mb-4 bg-clip-text text-transparent bg-gradient-to-r from-orange-500 to-amber-600">
+        Amor e Patas
+      </h2>
+      <p class="text-orange-500 font-medium">Conectando corações e patas desde 2023</p>
+    </div>
+
+    <!-- Conteúdo em formato de cartão -->
+    <div class="bg-white rounded-2xl shadow-xl overflow-hidden">
+      <!-- Seção de introdução com imagem -->
+      <div class="md:flex">
+        <div class="md:w-1/3 bg-orange-100 p-8 flex items-center justify-center">
+          <img src="https://www.americanhumane.org/wp-content/uploads/2024/11/shutterstock_162633491-1440x900.jpg" 
+               alt="Cachorro e gato juntos" 
+               class="rounded-lg shadow-md object-cover h-full w-full">
+        </div>
+        <div class="md:w-2/3 p-8 md:p-10">
+          <h3 class="text-2xl font-bold text-gray-800 mb-4">Nossa Missão</h3>
+          <p class="text-gray-600 mb-6 leading-relaxed">
+            O <span class="font-bold text-orange-500">Amor e Patas</span> nasceu da paixão por animais e do desejo de criar pontes entre aqueles que precisam de ajuda e aqueles que podem oferecer um lar. Somos uma plataforma que transforma tecnologia em oportunidades de amor e cuidado.
+          </p>
+          
+          <div class="bg-amber-50 border-l-4 border-amber-400 p-4 mb-6">
+            <p class="text-amber-700 italic">
+              "Nenhum animal merece viver sem amor. Juntos, podemos mudar histórias."
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Seção de valores -->
+      <div class="bg-gray-50 p-8 md:p-10 border-t border-gray-100">
+        <h3 class="text-2xl font-bold text-gray-800 mb-6 text-center">Como Fazemos a Diferença</h3>
+        
+        <div class="grid md:grid-cols-2 gap-8">
+          <div class="flex items-start">
+            <div class="bg-orange-100 p-3 rounded-full mr-4 flex-shrink-0">
+              <svg class="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"/>
+              </svg>
+            </div>
+            <div>
+              <h4 class="font-bold text-gray-800 mb-2">Conexões que Transformam</h4>
+              <p class="text-gray-600">Unimos animais perdidos a seus tutores, resgatados a novos lares e pessoas a seus futuros companheiros de vida.</p>
+            </div>
+          </div>
+          
+          <div class="flex items-start">
+            <div class="bg-orange-100 p-3 rounded-full mr-4 flex-shrink-0">
+              <svg class="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+              </svg>
+            </div>
+            <div>
+              <h4 class="font-bold text-gray-800 mb-2">Adoção Responsável</h4>
+              <p class="text-gray-600">Promovemos processos de adoção conscientes, com informações transparentes e acompanhamento pós-adoção.</p>
+            </div>
+          </div>
+          
+          <div class="flex items-start">
+            <div class="bg-orange-100 p-3 rounded-full mr-4 flex-shrink-0">
+              <svg class="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+              </svg>
+            </div>
+            <div>
+              <h4 class="font-bold text-gray-800 mb-2">Comunidade Ativa</h4>
+              <p class="text-gray-600">Mobilizamos uma rede de voluntários, protetores e amantes de animais para ampliar nosso impacto.</p>
+            </div>
+          </div>
+          
+          <div class="flex items-start">
+            <div class="bg-orange-100 p-3 rounded-full mr-4 flex-shrink-0">
+              <svg class="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+              </svg>
+            </div>
+            <div>
+              <h4 class="font-bold text-gray-800 mb-2">Tecnologia com Propósito</h4>
+              <p class="text-gray-600">Utilizamos ferramentas digitais para tornar o processo mais ágil, seguro e abrangente.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Chamada para ação -->
+      <div class="bg-gradient-to-r from-orange-500 to-amber-500 p-8 text-center">
+        <h3 class="text-2xl font-bold text-white mb-4">Pronto para fazer parte dessa história?</h3>
+        <p class="text-orange-100 mb-6 max-w-2xl mx-auto">Cada ação sua pode mudar o destino de um animal. Escolha como você quer ajudar:</p>
+        
+        <div class="flex flex-wrap justify-center gap-4">
+          <a href="adotar.html" class="bg-white text-orange-600 hover:bg-gray-50 font-semibold py-3 px-6 rounded-full transition shadow-md hover:shadow-lg">
+            Adotar um Amigo
+          </a>
+          <a href="perdido.html" class="bg-transparent border-2 border-white text-white hover:bg-white hover:bg-opacity-20 font-semibold py-3 px-6 rounded-full transition">
+            Relatar amigo
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Depoimentos -->
+    <div class="mt-16">
+      <h3 class="text-2xl font-bold text-gray-800 mb-8 text-center">Histórias que Inspiram</h3>
+      
+      <div class="grid md:grid-cols-3 gap-8">
+        <div class="bg-white p-6 rounded-xl shadow-md hover:shadow-lg transition">
+          <div class="flex items-center mb-4">
+            <div class="w-12 h-12 rounded-full bg-orange-200 flex items-center justify-center text-orange-600 font-bold mr-4">L</div>
+            <div>
+              <h4 class="font-bold">Larissa e Thor</h4>
+              <div class="flex text-amber-400">
+                <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+                <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+                <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+                <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+                <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+              </div>
+            </div>
+          </div>
+          <p class="text-gray-600 italic">"Encontrei o Thor através do Amor e Patas quando ele estava para ser eutanasiado. Hoje é minha sombra e alegria da casa!"</p>
+        </div>
+        
+        <div class="bg-white p-6 rounded-xl shadow-md hover:shadow-lg transition">
+          <div class="flex items-center mb-4">
+            <div class="w-12 h-12 rounded-full bg-orange-200 flex items-center justify-center text-orange-600 font-bold mr-4">M</div>
+            <div>
+              <h4 class="font-bold">Marcos e Luna</h4>
+              <div class="flex text-amber-400">
+                <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+                <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+                <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+                <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+                <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+              </div>
+            </div>
+          </div>
+          <p class="text-gray-600 italic">"A Luna foi resgatada por uma protetora cadastrada aqui. Em uma semana já estava adaptada e hoje é a rainha do apartamento!"</p>
+        </div>
+        
+        <div class="bg-white p-6 rounded-xl shadow-md hover:shadow-lg transition">
+          <div class="flex items-center mb-4">
+            <div class="w-12 h-12 rounded-full bg-orange-200 flex items-center justify-center text-orange-600 font-bold mr-4">A</div>
+            <div>
+              <h4 class="font-bold">Ana e os Gatinhos</h4>
+              <div class="flex text-amber-400">
+                <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+                <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+                <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+                <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+                <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+              </div>
+            </div>
+          </div>
+          <p class="text-gray-600 italic">"Adotei dois irmãos que estavam juntos no abrigo. Graças ao Amor e Patas, mantiveram-se unidos e hoje são minha família."</p>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+   
+<!-- Footer -->
+<footer class="bg-gray-900 text-gray-300 py-10">
+  <div class="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-4 gap-8">
+    
+    <!-- Sobre -->
+    <div>
+      <h4 class="text-xl font-semibold mb-4 text-white">Amor e Patas</h4>
+      <p class="text-gray-400 mb-4">
+        Conectando vidas e corações para um mundo melhor para nossos amigos peludos.
+      </p>
+    </div>
+
+    <!-- Redes Sociais -->
+    <div>
+      <h4 class="text-xl font-semibold mb-4 text-white">Siga-nos</h4>
+      <div class="flex space-x-6">
+        <a href="https://facebook.com/amorepatas" target="_blank" rel="noopener noreferrer" aria-label="Facebook" class="hover:text-orange-400">
+          <svg class="w-6 h-6 fill-current" viewBox="0 0 24 24" >
+            <path d="M22.675 0H1.325C.593 0 0 .593 0 1.326v21.348C0 23.407.593 24 1.325 24h11.495v-9.294H9.691v-3.622h3.129V8.413c0-3.1 1.894-4.788 4.659-4.788 1.325 0 2.466.099 2.798.143v3.24l-1.92.001c-1.504 0-1.795.715-1.795 1.763v2.313h3.587l-.467 3.622h-3.12V24h6.116c.73 0 1.324-.593 1.324-1.326V1.326C24 .593 23.407 0 22.675 0z"/>
+          </svg>
+        </a>
+        <a href="https://instagram.com/amorepatas" target="_blank" rel="noopener noreferrer" aria-label="Instagram" class="hover:text-orange-400">
+          <svg class="w-6 h-6 fill-current" viewBox="0 0 24 24" >
+            <path d="M7.75 2h8.5A5.75 5.75 0 0122 7.75v8.5A5.75 5.75 0 0116.25 22h-8.5A5.75 5.75 0 012 16.25v-8.5A5.75 5.75 0 017.75 2zm0 2A3.75 3.75 0 004 7.75v8.5A3.75 3.75 0 007.75 20h8.5a3.75 3.75 0 003.75-3.75v-8.5A3.75 3.75 0 0016.25 4h-8.5zm8.75 1a1 1 0 110 2 1 1 0 010-2zM12 7a5 5 0 110 10 5 5 0 010-10zm0 2a3 3 0 100 6 3 3 0 000-6z"/>
+          </svg>
+        </a>
+        <a href="https://twitter.com/amorepatas" target="_blank" rel="noopener noreferrer" aria-label="Twitter" class="hover:text-orange-400">
+          <svg class="w-6 h-6 fill-current" viewBox="0 0 24 24" >
+            <path d="M23 3a10.9 10.9 0 01-3.14.86A4.48 4.48 0 0022.4.36a9.09 9.09 0 01-2.88 1.1A4.52 4.52 0 0016.47 0c-2.49 0-4.5 2.03-4.5 4.53 0 .35.04.7.11 1.03A12.85 12.85 0 013 1.16a4.55 4.55 0 00-.61 2.28c0 1.57.79 2.96 1.99 3.78A4.5 4.5 0 012 6.6v.06a4.52 4.52 0 003.61 4.43 4.48 4.48 0 01-2.04.08 4.53 4.53 0 004.23 3.13A9.05 9.05 0 012 19.54 12.76 12.76 0 008.29 21c7.55 0 11.68-6.27 11.68-11.7 0-.18 0-.35-.01-.53A8.34 8.34 0 0023 3z"/>
+          </svg>
+        </a>
+      </div>
+    </div>
+  </div>
+</footer>
+  <script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Verificar se há usuário logado
+    const usuarioLogado = JSON.parse(localStorage.getItem('usuarioLogado'));
+    if (usuarioLogado) {
+      const loginText = document.getElementById('login-text');
+      const btnLogin = document.getElementById('btn-login');
+      
+      loginText.textContent = usuarioLogado.nome.split(' ')[0];
+      btnLogin.classList.add('logged-in');
+    }
+
+    // Menu mobile
+    const btnMenu = document.getElementById('btn-menu');
+    const menuMobile = document.getElementById('menu-mobile');
+    const spans = btnMenu.querySelectorAll('span');
+
+    btnMenu.addEventListener('click', () => {
+      menuMobile.classList.toggle('hidden');
+      spans[0].classList.toggle('rotate-45');
+      spans[0].classList.toggle('translate-y-1.5');
+      spans[1].classList.toggle('opacity-0');
+      spans[2].classList.toggle('-rotate-45');
+      spans[2].classList.toggle('-translate-y-1.5');
+    });
+
+    // Scroll header
+    window.addEventListener('scroll', () => {
+      const header = document.getElementById('header');
+      header.classList.toggle('shadow-xl', window.scrollY > 10);
+    });
+
+    // Alternar entre login e registro
+    document.getElementById('toggle-register')?.addEventListener('click', function(e) {
+      e.preventDefault();
+      document.getElementById('form-login').classList.add('hidden');
+      document.getElementById('form-register').classList.remove('hidden');
+    });
+    
+    document.getElementById('toggle-login')?.addEventListener('click', function(e) {
+      e.preventDefault();
+      document.getElementById('form-register').classList.add('hidden');
+      document.getElementById('form-login').classList.remove('hidden');
+    });
+    
+    // Formulário de Login
+    document.getElementById('form-login')?.addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      const email = document.getElementById('login-email').value;
+      const senha = document.getElementById('login-senha').value;
+      
+      // Verificar credenciais
+      const usuarios = JSON.parse(localStorage.getItem('usuarios')) || [];
+      const usuario = usuarios.find(u => u.email === email && u.senha === senha);
+      
+      if (usuario) {
+        // Login bem-sucedido
+        localStorage.setItem('usuarioLogado', JSON.stringify(usuario));
+        document.getElementById('login-text').textContent = usuario.nome.split(' ')[0];
+        document.getElementById('btn-login').classList.add('logged-in');
+        document.getElementById('login-form').classList.remove('group-hover:visible', 'group-hover:opacity-100');
+        document.getElementById('login-form').classList.add('opacity-0', 'invisible');
+        
+        alert('Login realizado com sucesso!');
+      } else {
+        alert('Email ou senha incorretos!');
+      }
+    });
+    
+    // Formulário de Registro
+    document.getElementById('form-register')?.addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      const nome = document.getElementById('register-nome').value;
+      const email = document.getElementById('register-email').value;
+      const senha = document.getElementById('register-senha').value;
+      
+      // Verificar se usuário já existe
+      const usuarios = JSON.parse(localStorage.getItem('usuarios')) || [];
+      const usuarioExistente = usuarios.find(u => u.email === email);
+      
+      if (usuarioExistente) {
+        alert('Este email já está cadastrado!');
+        return;
+      }
+      
+      // Adicionar novo usuário
+      const novoUsuario = { nome, email, senha };
+      usuarios.push(novoUsuario);
+      localStorage.setItem('usuarios', JSON.stringify(usuarios));
+      
+      // Logar automaticamente
+      localStorage.setItem('usuarioLogado', JSON.stringify(novoUsuario));
+      document.getElementById('login-text').textContent = novoUsuario.nome.split(' ')[0];
+      document.getElementById('btn-login').classList.add('logged-in');
+      document.getElementById('form-register').classList.add('hidden');
+      document.getElementById('form-login').classList.remove('hidden');
+      document.getElementById('login-form').classList.remove('group-hover:visible', 'group-hover:opacity-100');
+      document.getElementById('login-form').classList.add('opacity-0', 'invisible');
+      
+      alert('Cadastro realizado com sucesso! Você está logado.');
+    });
+  });
+      const campoBusca = document.querySelector('input[type="search"]');
+      const sugestoes = document.getElementById('sugestoes-busca');
+
+      campoBusca.addEventListener('focus', () => {
+        sugestoes.classList.remove('hidden');
+      });
+
+      campoBusca.addEventListener('blur', () => {
+        // Oculta após um pequeno atraso para permitir clique
+        setTimeout(() => sugestoes.classList.add('hidden'), 200);
+      });
+
+      // Preenche o campo com o clique
+      sugestoes.querySelectorAll('li').forEach(item => {
+        item.addEventListener('click', () => {
+          campoBusca.value = item.textContent;
+          sugestoes.classList.add('hidden');
+        });
+      });
+</script>
+</body>
+</html>
